@@ -1,42 +1,51 @@
+/* Основные цвета */
 .root {
-    -fx-base: #3c3f41;
+    -fx-base: #3c3f41;        /* Основной фон */
     -fx-background: #3c3f41;
-    -fx-control-inner-background: #2d2d32;
-    -fx-text-fill: white;
+    -fx-control-inner-background: #2d2d32; /* Фон текстовых областей */
+    -fx-text-fill: white;     /* Цвет текста */
 }
 
+/* Меню бар */
 .menu-bar {
     -fx-background-color: #46464b;
     -fx-padding: 0;
 }
 
-.menu-bar .menu {
+.menu {
     -fx-text-fill: white;
     -fx-padding: 5 15;
 }
 
-.menu-bar .menu:hover {
+.menu:hover, .menu:showing {
     -fx-background-color: #60d0bf;
     -fx-text-fill: black;
 }
 
-.menu-bar .menu-item {
+.menu-item {
     -fx-background-color: #505055;
     -fx-text-fill: white;
 }
 
-.menu-bar .menu-item:hover {
+.menu-item:hover {
     -fx-background-color: #60d0bf;
     -fx-text-fill: black;
 }
 
+.context-menu {
+    -fx-background-color: #505055;
+    -fx-border-color: #3c3f41;
+}
+
+/* Контейнер панели инструментов */
 .tool-bar {
     -fx-background-color: #505055;
     -fx-padding: 5;
     -fx-spacing: 5;
+    -fx-alignment: center-left;
 }
 
-.tool-bar .button {
+.button, .toggle-button {
     -fx-background-color: #505055;
     -fx-text-fill: white;
     -fx-border-color: #646469;
@@ -44,48 +53,36 @@
     -fx-padding: 5 12;
 }
 
-.tool-bar .button:hover {
+.button:hover, .toggle-button:hover {
     -fx-background-color: #60d0bf;
     -fx-text-fill: black;
 }
 
-.tool-bar .toggle-button {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-    -fx-border-color: #646469;
-    -fx-border-width: 1;
-    -fx-padding: 5 12;
-}
-
-.tool-bar .toggle-button:selected {
+.toggle-button:selected {
     -fx-background-color: #60d0bf;
     -fx-text-fill: black;
 }
 
-.tool-bar .toggle-button:hover {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
-}
-
+/* Вкладки */
 .tab-pane {
     -fx-background-color: #3c3f41;
 }
 
-.tab-pane .tab {
+.tab {
     -fx-background-color: #505055;
     -fx-text-fill: white;
-    -fx-padding: 5 15;
 }
 
-.tab-pane .tab:selected {
+.tab:selected {
     -fx-background-color: #60d0bf;
     -fx-text-fill: black;
 }
 
-.tab-pane .tab-header-area {
+.tab-header-area {
     -fx-background-color: #3c3f41;
 }
 
+/* Текстовая область */
 .text-area {
     -fx-background-color: #2d2d32;
     -fx-text-fill: white;
@@ -98,6 +95,7 @@
     -fx-background-color: #2d2d32;
 }
 
+/* Выпадающие списки */
 .combo-box {
     -fx-background-color: #505055;
     -fx-text-fill: white;
@@ -117,6 +115,80 @@
     -fx-text-fill: black;
 }
 
+/* Метки */
 .label {
     -fx-text-fill: white;
+}
+
+/* Разделители */
+.separator {
+    -fx-background-color: #646469;
+}
+
+/* Полоса прокрутки */
+.scroll-bar:horizontal, .scroll-bar:vertical {
+    -fx-background-color: #3c3f41;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #505055;
+}
+
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #60d0bf;
+}
+
+.tool-bar .button {
+    -fx-background-color: #505055;
+    -fx-text-fill: white;
+    -fx-border-color: #646469;
+    -fx-border-width: 1;
+    -fx-padding: 5 12;
+    -fx-min-width: -1; /* Отключаем минимальную ширину */
+    -fx-pref-width: -1; /* Автоматическая ширина по содержимому */
+    -fx-max-width: Infinity; /* Может растягиваться при необходимости */
+}
+
+/* Специальные стили для кнопок с иконками */
+.tool-bar .icon-button {
+    -fx-min-width: 30px;
+    -fx-max-width: 30px;
+    -fx-padding: 5;
+}
+
+/* Выпадающие списки */
+.tool-bar .combo-box {
+    -fx-min-width: 120px;
+    -fx-pref-width: 120px;
+}
+
+/* Метки на панели инструментов */
+.tool-bar .label {
+    -fx-padding: 0 5 0 0;
+}
+
+.record-button {
+    -fx-background-color: #505055;
+    -fx-text-fill: white;
+    -fx-border-color: #646469;
+    -fx-border-width: 1;
+    -fx-padding: 5 12;
+}
+
+.record-button:hover {
+    -fx-background-color: #60d0bf;
+    -fx-text-fill: black;
+}
+
+.recording-button {
+    -fx-background-color: #ff4444;
+    -fx-text-fill: black;
+    -fx-border-color: #646469;
+    -fx-border-width: 1;
+    -fx-padding: 5 12;
+}
+
+.recording-button:hover {
+    -fx-background-color: #ff6666;
 }

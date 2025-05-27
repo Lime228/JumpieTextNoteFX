@@ -24,6 +24,13 @@ public class VoiceRecognitionService {
         this.parentStage = stage;
         this.format = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
         this.recognizer = initializeRecognizer(modelPath);
+
+        // Добавляем слушатель изменения состояния
+        this.setOnStateChangeListener(() -> {
+            if (onStateChange != null) {
+                onStateChange.run();
+            }
+        });
     }
 
     private Recognizer initializeRecognizer(String modelPath) {

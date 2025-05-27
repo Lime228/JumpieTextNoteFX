@@ -15,35 +15,62 @@ public class EditorMain extends Application implements TextAppender {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Jumpie TextNote");
+        try {
+            // 1. Сначала инициализируем основные компоненты
+            tabManager = new TabManager();
+            fileManager = new FileManager(primaryStage, tabManager);
+            voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
 
-        // Инициализация компонентов
-        tabManager = new TabManager();
-        fileManager = new FileManager(primaryStage, tabManager);
-        voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
-        editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
+            // 2. Затем создаем меню, которое зависит от предыдущих компонентов
+            editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
 
-        // Настройка обработчика закрытия окна
-        primaryStage.setOnCloseRequest(e -> {
-            voiceService.dispose();
-            primaryStage.close();
-        });
+            // 3. Настройка основного интерфейса
+            BorderPane root = new BorderPane();
 
-        // Создание основного layout
-        BorderPane root = new BorderPane();
+            // Создаем контейнер для верхней панели (меню + инструменты)
+            HBox topContainer = new HBox();
+            topContainer.getChildren().addAll(
+                    editorMenuBar.getMenuBar(),
+                    editorMenuBar.getToolBar()
+            );
 
-        // Создаем контейнер для меню и панели инструментов
-        HBox topContainer = new HBox();
-        topContainer.getChildren().addAll(editorMenuBar.getMenuBar(), editorMenuBar.getToolBar());
+            root.setTop(topContainer);
+            root.setCenter(tabManager.getTabPane());
 
-        root.setTop(topContainer);
-        root.setCenter(tabManager.getTabPane());
+            // Настройка сцены
+            Scene scene = new Scene(root, 925, 600);
 
-        // Настройка сцены
-        Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/com/jumpie/styles.css").toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+            // Загрузка CSS стилей
+            try {
+                String css = getClass().getResource("/com/jumpie/styles.css").toExternalForm();
+                scene.getStylesheets().add(css);
+            } catch (NullPointerException e) {
+                System.err.println("CSS file not found. Using default styling.");
+            }
+
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Jumpie TextNote");
+            primaryStage.show();
+
+            // Настройка обработчика закрытия окна
+            primaryStage.setOnCloseRequest(e -> {
+                voiceService.dispose();
+                primaryStage.close();
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError(primaryStage, "Application Error", "Failed to start application: " + e.getMessage());
+        }
+    }
+
+    private void showError(Stage owner, String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initOwner(owner);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @Override
