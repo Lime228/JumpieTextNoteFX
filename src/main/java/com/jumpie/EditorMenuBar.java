@@ -3,10 +3,12 @@ package com.jumpie;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
+import org.fxmisc.richtext.StyleClassedTextArea;
+
+import java.util.Set;
 
 public class EditorMenuBar {
     private final MenuBar menuBar;
@@ -16,9 +18,6 @@ public class EditorMenuBar {
     private final ComboBox<Integer> sizeCombo;
     private final ToggleButton boldBtn;
     private final ToggleButton italicBtn;
-    private final Button zoomInButton;
-    private final Button zoomOutButton;
-    private final Button zoomResetButton;
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
@@ -28,7 +27,7 @@ public class EditorMenuBar {
         // Создание меню File
         Menu fileMenu = createMenu("File", "New Tab", "Open", "Save", "Save As", "Print", "Close Tab");
         // Создание меню Edit
-        Menu editMenu = createMenu("Edit", "Cut", "Copy", "Paste", "Zoom In", "Zoom Out", "Reset Zoom");
+        Menu editMenu = createMenu("Edit", "Cut", "Copy", "Paste");
 
         menuBar.getMenus().addAll(fileMenu, editMenu);
 
@@ -36,25 +35,20 @@ public class EditorMenuBar {
         toolBar = new HBox(5);
         toolBar.getStyleClass().add("tool-bar");
         toolBar.setFillHeight(true);
-        voiceService.setOnStateChangeListener(() -> {
-            updateVoiceButtonState(voiceService.isListening());
-        });
-        voiceButton = createToolButton("Record", "Start/Stop voice input");
+        voiceService.setOnStateChangeListener(() -> updateVoiceButtonState(voiceService.isListening()));
+        voiceButton = createRecordButton();
         voiceButton.setOnAction(e -> {
             voiceService.toggleRecognition(editorMain);
             updateVoiceButtonState(voiceService.isListening());
         });
-        zoomInButton = createToolButton("Zoom In", "Increase zoom level");
-        zoomOutButton = createToolButton("Zoom Out", "Decrease zoom level");
-        zoomResetButton = createToolButton("Reset Zoom", "Reset to default zoom level");
 
         // Настройка выпадающих списков
         fontCombo = createFontComboBox();
         sizeCombo = createSizeComboBox();
 
         // Кнопки стилей
-        boldBtn = createStyleToggleButton("Bold", FontWeight.BOLD);
-        italicBtn = createStyleToggleButton("Italic", FontPosture.ITALIC);
+        boldBtn = createStyleToggleButton("B", FontWeight.BOLD);
+        italicBtn = createStyleToggleButton("I", FontPosture.ITALIC);
 
         // Добавляем элементы на панель инструментов
         toolBar.getChildren().addAll(
@@ -65,8 +59,7 @@ public class EditorMenuBar {
                 createLabel("Size:"), sizeCombo,
                 createSeparator(),
                 boldBtn, italicBtn,
-                createSeparator(),
-                zoomInButton, zoomOutButton, zoomResetButton
+                createSeparator()
         );
 
         // Настройка обработчиков событий
@@ -82,10 +75,9 @@ public class EditorMenuBar {
         return menu;
     }
 
-
-    private Button createToolButton(String text, String tooltip) {
-        Button button = new Button(text);
-        button.setTooltip(new Tooltip(tooltip));
+    private Button createToolButton() {
+        Button button = new Button("Record");
+        button.setTooltip(new Tooltip("Start/Stop voice input"));
         button.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(button, Priority.ALWAYS);
         return button;
@@ -93,7 +85,7 @@ public class EditorMenuBar {
 
     private ComboBox<String> createFontComboBox() {
         ComboBox<String> combo = new ComboBox<>();
-        combo.getItems().addAll(Font.getFontNames());
+        combo.getItems().addAll(Font.getFamilies());
         combo.setValue("Consolas");
         combo.setTooltip(new Tooltip("Select font"));
         combo.setMinWidth(120);
@@ -113,8 +105,8 @@ public class EditorMenuBar {
 
     private ToggleButton createStyleToggleButton(String text, Object style) {
         ToggleButton button = new ToggleButton(text);
-        button.setMinWidth(60);
-        button.setMaxWidth(60);
+        button.setMinWidth(30);
+        button.setMaxWidth(30);
         return button;
     }
 
@@ -133,10 +125,10 @@ public class EditorMenuBar {
     private void setupEventHandlers(EditorMain editorMain, FileManager fileManager,
                                     TabManager tabManager, VoiceRecognitionService voiceService) {
         // Обработчики для меню File
-        menuBar.getMenus().get(0).getItems().get(0).setOnAction(e -> tabManager.addNewTab());
-        menuBar.getMenus().get(0).getItems().get(1).setOnAction(e -> fileManager.openFile());
-        menuBar.getMenus().get(0).getItems().get(2).setOnAction(e -> fileManager.saveFile(false));
-        menuBar.getMenus().get(0).getItems().get(3).setOnAction(e -> fileManager.saveFile(true));
+        menuBar.getMenus().getFirst().getItems().get(0).setOnAction(e -> tabManager.addNewTab());
+        menuBar.getMenus().getFirst().getItems().get(1).setOnAction(e -> fileManager.openFile());
+        menuBar.getMenus().getFirst().getItems().get(2).setOnAction(e -> fileManager.saveFile(false));
+        menuBar.getMenus().getFirst().getItems().get(3).setOnAction(e -> fileManager.saveFile(true));
         menuBar.getMenus().get(0).getItems().get(4).setOnAction(e -> tabManager.print());
         menuBar.getMenus().get(0).getItems().get(5).setOnAction(e -> tabManager.closeCurrentTab());
 
@@ -144,20 +136,51 @@ public class EditorMenuBar {
         menuBar.getMenus().get(1).getItems().get(0).setOnAction(e -> tabManager.cut());
         menuBar.getMenus().get(1).getItems().get(1).setOnAction(e -> tabManager.copy());
         menuBar.getMenus().get(1).getItems().get(2).setOnAction(e -> tabManager.paste());
-        menuBar.getMenus().get(1).getItems().get(3).setOnAction(e -> tabManager.zoomIn());
-        menuBar.getMenus().get(1).getItems().get(4).setOnAction(e -> tabManager.zoomOut());
-        menuBar.getMenus().get(1).getItems().get(5).setOnAction(e -> tabManager.resetZoom());
 
-        // Обработчики для кнопок панели инструментов
-        zoomInButton.setOnAction(e -> tabManager.zoomIn());
-        zoomOutButton.setOnAction(e -> tabManager.zoomOut());
-        zoomResetButton.setOnAction(e -> tabManager.resetZoom());
         voiceButton.setOnAction(e -> voiceService.toggleRecognition(editorMain));
 
-        fontCombo.setOnAction(e -> tabManager.changeFontFamily(fontCombo.getValue()));
-        sizeCombo.setOnAction(e -> tabManager.changeFontSize(sizeCombo.getValue()));
-        boldBtn.setOnAction(e -> tabManager.toggleFontStyle(FontWeight.BOLD));
-        italicBtn.setOnAction(e -> tabManager.toggleFontStyle(FontPosture.ITALIC));
+        fontCombo.setOnAction(e -> {
+            String selectedFont = fontCombo.getSelectionModel().getSelectedItem();
+            if (selectedFont != null) {
+                tabManager.changeSelectionFontFamily(selectedFont);
+                updateStyleButtons(tabManager);
+            }
+        });
+
+        sizeCombo.setOnAction(e -> {
+            Integer selectedSize = sizeCombo.getSelectionModel().getSelectedItem();
+            if (selectedSize != null) {
+                tabManager.changeSelectionFontSize(selectedSize);
+                updateStyleButtons(tabManager);
+            }
+        });
+
+        boldBtn.setOnAction(e -> {
+            tabManager.toggleSelectionBold();
+            updateStyleButtons(tabManager);
+        });
+
+        italicBtn.setOnAction(e -> {
+            tabManager.toggleSelectionItalic();
+            updateStyleButtons(tabManager);
+        });
+    }
+
+    private void updateStyleButtons(TabManager tabManager) {
+        StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
+        if (textArea != null) {
+            if (textArea.getSelection().getLength() > 0) {
+                int pos = textArea.getSelection().getStart();
+                Set<String> styles = (Set<String>) textArea.getStyleOfChar(pos);
+                boldBtn.setSelected(styles.contains("text-bold") || styles.contains("text-bold-italic"));
+                italicBtn.setSelected(styles.contains("text-italic") || styles.contains("text-bold-italic"));
+            } else {
+                // Для всего текста
+                String style = textArea.getStyle();
+                boldBtn.setSelected(style != null && style.contains("-fx-font-weight: bold"));
+                italicBtn.setSelected(style != null && style.contains("-fx-font-style: italic"));
+            }
+        }
     }
 
     public MenuBar getMenuBar() {
@@ -168,8 +191,11 @@ public class EditorMenuBar {
         return toolBar;
     }
 
-    public Button getVoiceButton() {
-        return voiceButton;
+
+    private Button createRecordButton() {
+        Button button = createToolButton();
+        button.getStyleClass().add("record-button");
+        return button;
     }
 
     public void updateVoiceButtonState(boolean isListening) {

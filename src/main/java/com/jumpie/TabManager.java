@@ -1,13 +1,9 @@
 package com.jumpie;
 
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
+import java.util.*;
 
 public class TabManager {
     private final TabPane tabPane;
@@ -30,9 +26,6 @@ public class TabManager {
             } else if (new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN).match(event)) {
                 closeCurrentTab();
                 event.consume();
-            } else if (new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN).match(event)) {
-                // Сохранение будет обработано в FileManagerFX
-                event.consume();
             }
         });
     }
@@ -42,14 +35,17 @@ public class TabManager {
     }
 
     public void addNewTab() {
-        TextArea textArea = createTextArea();
+        StyleClassedTextArea textArea = new StyleClassedTextArea();
+        textArea.getStyleClass().add("styled-text-area");
+        textArea.setWrapText(true);
+        textArea.setStyle("-fx-font-family: Consolas; -fx-font-size: 14px; -fx-text-fill: white;");
+
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        Tab tab = new Tab("New Document " + (tabPane.getTabs().size() + 1), scrollPane);
+        Tab tab = new Tab("New Document", scrollPane);
         tab.setClosable(true);
-
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
@@ -65,10 +61,10 @@ public class TabManager {
         return tabPane.getSelectionModel().getSelectedItem();
     }
 
-    public TextArea getCurrentTextArea() {
+    public StyleClassedTextArea getCurrentTextArea() {
         Tab currentTab = getCurrentTab();
         if (currentTab != null && currentTab.getContent() instanceof ScrollPane scrollPane) {
-            if (scrollPane.getContent() instanceof TextArea textArea) {
+            if (scrollPane.getContent() instanceof StyleClassedTextArea textArea) {
                 return textArea;
             }
         }
@@ -97,23 +93,18 @@ public class TabManager {
     private void setZoom(double newZoom) {
         newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
         if (Math.abs(currentZoom - newZoom) > 0.01) {
-            TextArea textArea = getCurrentTextArea();
+            StyleClassedTextArea textArea = getCurrentTextArea();
             if (textArea != null) {
-                Font currentFont = textArea.getFont();
-                double newSize = currentFont.getSize() * (newZoom / currentZoom);
-                textArea.setFont(Font.font(
-                        currentFont.getFamily(),
-                        FontWeight.findByName(currentFont.getStyle()),
-                        FontPosture.findByName(currentFont.getStyle()),
-                        newSize
-                ));
+                double currentSize = Double.parseDouble(textArea.getStyle().replaceAll(".*-fx-font-size: ([0-9]+)px;.*", "$1"));
+                double newSize = currentSize * (newZoom / currentZoom);
+                textArea.setStyle(textArea.getStyle().replaceFirst("-fx-font-size: [0-9]+px;", "-fx-font-size: " + newSize + "px;"));
                 currentZoom = newZoom;
             }
         }
     }
 
     public void cut() {
-        TextArea textArea = getCurrentTextArea();
+        StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
@@ -124,7 +115,7 @@ public class TabManager {
     }
 
     public void copy() {
-        TextArea textArea = getCurrentTextArea();
+        StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
@@ -134,7 +125,7 @@ public class TabManager {
     }
 
     public void paste() {
-        TextArea textArea = getCurrentTextArea();
+        StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
             Clipboard clipboard = Clipboard.getSystemClipboard();
             if (clipboard.hasString()) {
@@ -144,67 +135,133 @@ public class TabManager {
     }
 
     public void print() {
-        TextArea textArea = getCurrentTextArea();
+        StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
-            // Здесь должна быть реализация печати
             System.out.println("Printing: " + textArea.getText());
         }
     }
 
-    public void changeFontFamily(String fontFamily) {
-        TextArea textArea = getCurrentTextArea();
+    public void changeSelectionFontFamily(String fontFamily) {
+        StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
-            Font currentFont = textArea.getFont();
-            textArea.setFont(Font.font(
-                    fontFamily,
-                    FontWeight.findByName(currentFont.getStyle()),
-                    FontPosture.findByName(currentFont.getStyle()),
-                    currentFont.getSize()
-            ));
-        }
-    }
-
-    public void changeFontSize(int size) {
-        TextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            Font currentFont = textArea.getFont();
-            textArea.setFont(Font.font(
-                    currentFont.getFamily(),
-                    FontWeight.findByName(currentFont.getStyle()),
-                    FontPosture.findByName(currentFont.getStyle()),
-                    size
-            ));
-        }
-    }
-
-    public void toggleFontStyle(Object style) {
-        TextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            Font currentFont = textArea.getFont();
-
-            FontWeight weight = FontWeight.findByName(currentFont.getStyle());
-            FontPosture posture = FontPosture.findByName(currentFont.getStyle());
-
-            if (style instanceof FontWeight) {
-                weight = (weight == FontWeight.BOLD) ? FontWeight.NORMAL : FontWeight.BOLD;
-            } else if (style instanceof FontPosture) {
-                posture = (posture == FontPosture.ITALIC) ? FontPosture.REGULAR : FontPosture.ITALIC;
+            if (textArea.getSelection().getLength() > 0) {
+                int start = textArea.getSelection().getStart();
+                int end = textArea.getSelection().getEnd();
+                textArea.setStyle(start, end, Collections.singleton("font-family:" + fontFamily));
+            } else {
+                String currentStyle = textArea.getStyle();
+                textArea.setStyle((currentStyle == null ? "" : currentStyle) +
+                        " -fx-font-family: '" + fontFamily + "';");
             }
-
-            textArea.setFont(Font.font(
-                    currentFont.getFamily(),
-                    weight,
-                    posture,
-                    currentFont.getSize()
-            ));
         }
     }
 
-    private TextArea createTextArea() {
-        TextArea textArea = new TextArea();
-        textArea.getStyleClass().add("text-area");
-        textArea.setWrapText(true);
-        textArea.setFont(Font.font("Consolas", 14));
-        return textArea;
+    public void changeSelectionFontSize(int size) {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null) {
+            if (textArea.getSelection().getLength() > 0) {
+                int start = textArea.getSelection().getStart();
+                int end = textArea.getSelection().getEnd();
+                textArea.setStyle(start, end, Collections.singleton("size-" + size));
+            } else {
+                String currentStyle = textArea.getStyle();
+                textArea.setStyle((currentStyle == null ? "" : currentStyle) +
+                        " -fx-font-size: " + size + "px;");
+            }
+        }
+    }
+
+    public void toggleSelectionBold() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null) {
+            if (textArea.getSelection().getLength() > 0) {
+                int start = textArea.getSelection().getStart();
+                int end = textArea.getSelection().getEnd();
+
+                Set<String> styles = new HashSet<>();
+                if (textArea.getStyleOfChar(start) != null) {
+                    styles.addAll((Set<String>) textArea.getStyleOfChar(start));
+                }
+
+                boolean isBold = styles.contains("text-bold") || styles.contains("text-bold-italic");
+                boolean isItalic = styles.contains("text-italic");
+
+                textArea.clearStyle(start, end);
+
+                Set<String> newStyles = new HashSet<>();
+                // Сохраняем размер шрифта
+                for (String style : styles) {
+                    if (style.startsWith("size-") || style.startsWith("font-family:")) {
+                        newStyles.add(style);
+                    }
+                }
+
+                if (!isBold && isItalic) {
+                    newStyles.add("text-bold-italic");
+                } else if (!isBold) {
+                    newStyles.add("text-bold");
+                } else if (isItalic) {
+                    newStyles.add("text-italic");
+                }
+
+                textArea.setStyle(start, end, newStyles);
+            } else {
+                String currentStyle = textArea.getStyle();
+                boolean isBold = currentStyle != null && currentStyle.contains("-fx-font-weight: bold");
+
+                if (isBold) {
+                    textArea.setStyle(currentStyle.replace("-fx-font-weight: bold;", ""));
+                } else {
+                    textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-weight: bold;");
+                }
+            }
+        }
+    }
+
+    public void toggleSelectionItalic() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null) {
+            if (textArea.getSelection().getLength() > 0) {
+                int start = textArea.getSelection().getStart();
+                int end = textArea.getSelection().getEnd();
+
+                Set<String> styles = new HashSet<>();
+                if (textArea.getStyleOfChar(start) != null) {
+                    styles.addAll((Set<String>) textArea.getStyleOfChar(start));
+                }
+
+                boolean isItalic = styles.contains("text-italic") || styles.contains("text-bold-italic");
+                boolean isBold = styles.contains("text-bold");
+
+                textArea.clearStyle(start, end);
+
+                Set<String> newStyles = new HashSet<>();
+                // Сохраняем размер шрифта
+                for (String style : styles) {
+                    if (style.startsWith("size-") || style.startsWith("font-family:")) {
+                        newStyles.add(style);
+                    }
+                }
+
+                if (!isItalic && isBold) {
+                    newStyles.add("text-bold-italic");
+                } else if (!isItalic) {
+                    newStyles.add("text-italic");
+                } else if (isBold) {
+                    newStyles.add("text-bold");
+                }
+
+                textArea.setStyle(start, end, newStyles);
+            } else {
+                String currentStyle = textArea.getStyle();
+                boolean isItalic = currentStyle != null && currentStyle.contains("-fx-font-style: italic");
+
+                if (isItalic) {
+                    textArea.setStyle(currentStyle.replace("-fx-font-style: italic;", ""));
+                } else {
+                    textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-style: italic;");
+                }
+            }
+        }
     }
 }

@@ -1,15 +1,14 @@
 /* Основные цвета */
 .root {
-    -fx-base: #3c3f41;        /* Основной фон */
+    -fx-base: #3c3f41;
     -fx-background: #3c3f41;
-    -fx-control-inner-background: #2d2d32; /* Фон текстовых областей */
-    -fx-text-fill: white;     /* Цвет текста */
+    -fx-control-inner-background: #2d2d32;
+    -fx-text-fill: white;
 }
 
-/* Меню бар */
+/* Меню */
 .menu-bar {
     -fx-background-color: #46464b;
-    -fx-padding: 0;
 }
 
 .menu {
@@ -37,12 +36,11 @@
     -fx-border-color: #3c3f41;
 }
 
-/* Контейнер панели инструментов */
+/* Панель инструментов */
 .tool-bar {
     -fx-background-color: #505055;
     -fx-padding: 5;
     -fx-spacing: 5;
-    -fx-alignment: center-left;
 }
 
 .button, .toggle-button {
@@ -83,16 +81,15 @@
 }
 
 /* Текстовая область */
-.text-area {
-    -fx-background-color: #2d2d32;
+.styled-text-area, .styled-text-area .content {
+    -fx-background-color: #c9c2b5;
     -fx-text-fill: white;
-    -fx-font-family: "Consolas";
+    -fx-font-family: Consolas;
     -fx-font-size: 14px;
-    -fx-padding: 10 15;
 }
 
-.text-area .content {
-    -fx-background-color: #2d2d32;
+.styled-text-area .paragraph-box {
+    -fx-text-fill: white;
 }
 
 /* Выпадающие списки */
@@ -115,18 +112,13 @@
     -fx-text-fill: black;
 }
 
-/* Метки */
-.label {
-    -fx-text-fill: white;
-}
-
 /* Разделители */
 .separator {
     -fx-background-color: #646469;
 }
 
 /* Полоса прокрутки */
-.scroll-bar:horizontal, .scroll-bar:vertical {
+.scroll-bar {
     -fx-background-color: #3c3f41;
 }
 
@@ -134,61 +126,52 @@
     -fx-background-color: #505055;
 }
 
-
 .scroll-bar .thumb:hover {
     -fx-background-color: #60d0bf;
 }
 
-.tool-bar .button {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-    -fx-border-color: #646469;
-    -fx-border-width: 1;
-    -fx-padding: 5 12;
-    -fx-min-width: -1; /* Отключаем минимальную ширину */
-    -fx-pref-width: -1; /* Автоматическая ширина по содержимому */
-    -fx-max-width: Infinity; /* Может растягиваться при необходимости */
-}
-
-/* Специальные стили для кнопок с иконками */
-.tool-bar .icon-button {
-    -fx-min-width: 30px;
-    -fx-max-width: 30px;
-    -fx-padding: 5;
-}
-
-/* Выпадающие списки */
-.tool-bar .combo-box {
-    -fx-min-width: 120px;
-    -fx-pref-width: 120px;
-}
-
-/* Метки на панели инструментов */
-.tool-bar .label {
-    -fx-padding: 0 5 0 0;
-}
-
+/* Специальные кнопки */
 .record-button {
     -fx-background-color: #505055;
     -fx-text-fill: white;
-    -fx-border-color: #646469;
-    -fx-border-width: 1;
-    -fx-padding: 5 12;
 }
 
 .record-button:hover {
     -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
 }
 
 .recording-button {
     -fx-background-color: #ff4444;
     -fx-text-fill: black;
-    -fx-border-color: #646469;
-    -fx-border-width: 1;
-    -fx-padding: 5 12;
 }
 
 .recording-button:hover {
     -fx-background-color: #ff6666;
 }
+
+/* Стили текста */
+.text-bold {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.text-italic {
+    -fx-font-style: italic;
+    -fx-text-fill: white;
+}
+
+.text-bold-italic {
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-text-fill: white;
+}
+
+/* Стили размеров */
+.size-8 { -fx-font-size: 8px; -fx-text-fill: white;}
+.size-10 { -fx-font-size: 10px; -fx-text-fill: white;}
+.size-12 { -fx-font-size: 12px; -fx-text-fill: white;}
+.size-14 { -fx-font-size: 14px; -fx-text-fill: white;}
+.size-16 { -fx-font-size: 16px; -fx-text-fill: white;}
+.size-18 { -fx-font-size: 18px; -fx-text-fill: white;}
+.size-20 { -fx-font-size: 20px; -fx-text-fill: white;}
+.size-24 { -fx-font-size: 24px; -fx-text-fill: white;}

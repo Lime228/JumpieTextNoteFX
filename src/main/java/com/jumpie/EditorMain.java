@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
 public class EditorMain extends Application implements TextAppender {
     private TabManager tabManager;
@@ -77,7 +78,7 @@ public class EditorMain extends Application implements TextAppender {
     public void appendText(String text) {
         Tab currentTab = tabManager.getCurrentTab();
         if (currentTab != null && currentTab.getContent() instanceof ScrollPane scrollPane) {
-            if (scrollPane.getContent() instanceof TextArea textArea) {
+            if (scrollPane.getContent() instanceof StyleClassedTextArea textArea) {
                 textArea.appendText(text);
             }
         }

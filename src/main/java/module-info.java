@@ -7,6 +7,7 @@ module com.jumpie.jumpietextnotefx {
     requires org.kordamp.bootstrapfx.core;
     requires vosk;
     requires java.desktop;
+    requires org.fxmisc.richtext;
 
     opens com.jumpie to javafx.fxml;
     exports com.jumpie;
