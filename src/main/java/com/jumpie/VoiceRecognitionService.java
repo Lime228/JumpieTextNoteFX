@@ -25,7 +25,6 @@ public class VoiceRecognitionService {
         this.format = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
         this.recognizer = initializeRecognizer(modelPath);
 
-        // Добавляем слушатель изменения состояния
         this.setOnStateChangeListener(() -> {
             if (onStateChange != null) {
                 onStateChange.run();
@@ -101,7 +100,6 @@ public class VoiceRecognitionService {
             String result = recognizer.getResult();
             String text = extractTextFromResult(result);
             if (!text.isEmpty()) {
-                // Удаляем последний пробел и добавляем первую заглавную букву и точку в конце
                 if (text.endsWith(" ")) {
                     text = text.substring(0, text.length() - 1);
                 }
@@ -119,9 +117,6 @@ public class VoiceRecognitionService {
         char firstChar = Character.toUpperCase(text.charAt(0));
         return firstChar + text.substring(1);
     }
-
-
-
 
 
     public synchronized void stopRecognition() {

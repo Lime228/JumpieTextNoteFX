@@ -7,10 +7,6 @@ import java.util.*;
 
 public class TabManager {
     private final TabPane tabPane;
-    private double currentZoom = 1.0;
-    private static final double MIN_ZOOM = 0.5;
-    private static final double MAX_ZOOM = 5.0;
-    private static final double ZOOM_STEP = 0.1;
 
     public TabManager() {
         this.tabPane = new TabPane();
@@ -38,7 +34,7 @@ public class TabManager {
         StyleClassedTextArea textArea = new StyleClassedTextArea();
         textArea.getStyleClass().add("styled-text-area");
         textArea.setWrapText(true);
-        textArea.setStyle("-fx-font-family: Consolas; -fx-font-size: 14px; -fx-text-fill: white;");
+        textArea.setStyle("-fx-font-family: Consolas; -fx-font-size: 14px;");
 
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFitToWidth(true);
@@ -78,30 +74,6 @@ public class TabManager {
         }
     }
 
-    public void zoomIn() {
-        setZoom(currentZoom + ZOOM_STEP);
-    }
-
-    public void zoomOut() {
-        setZoom(currentZoom - ZOOM_STEP);
-    }
-
-    public void resetZoom() {
-        setZoom(1.0);
-    }
-
-    private void setZoom(double newZoom) {
-        newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
-        if (Math.abs(currentZoom - newZoom) > 0.01) {
-            StyleClassedTextArea textArea = getCurrentTextArea();
-            if (textArea != null) {
-                double currentSize = Double.parseDouble(textArea.getStyle().replaceAll(".*-fx-font-size: ([0-9]+)px;.*", "$1"));
-                double newSize = currentSize * (newZoom / currentZoom);
-                textArea.setStyle(textArea.getStyle().replaceFirst("-fx-font-size: [0-9]+px;", "-fx-font-size: " + newSize + "px;"));
-                currentZoom = newZoom;
-            }
-        }
-    }
 
     public void cut() {
         StyleClassedTextArea textArea = getCurrentTextArea();
@@ -148,13 +120,11 @@ public class TabManager {
                 int start = textArea.getSelection().getStart();
                 int end = textArea.getSelection().getEnd();
 
-                // Получаем текущие стили
                 Set<String> currentStyles = new HashSet<>();
                 if (textArea.getStyleOfChar(start) != null) {
                     currentStyles.addAll((Set<String>) textArea.getStyleOfChar(start));
                 }
 
-                // Удаляем старое семейство шрифтов
                 Set<String> newStyles = new HashSet<>();
                 for (String style : currentStyles) {
                     if (!style.startsWith("font-family:")) {
@@ -162,14 +132,11 @@ public class TabManager {
                     }
                 }
 
-                // Добавляем новое
                 newStyles.add("font-family:" + fontFamily);
 
-                // Применяем
                 textArea.clearStyle(start, end);
                 textArea.setStyle(start, end, newStyles);
             } else {
-                // Для всего текста, если нет выделения
                 String currentStyle = textArea.getStyle();
                 textArea.setStyle((currentStyle == null ? "" : currentStyle) +
                         " -fx-font-family: '" + fontFamily + "';");
@@ -184,13 +151,11 @@ public class TabManager {
                 int start = textArea.getSelection().getStart();
                 int end = textArea.getSelection().getEnd();
 
-                // Получаем текущие стили
                 Set<String> currentStyles = new HashSet<>();
                 if (textArea.getStyleOfChar(start) != null) {
                     currentStyles.addAll(textArea.getStyleOfChar(start));
                 }
 
-                // Удаляем старый размер
                 Set<String> newStyles = new HashSet<>();
                 for (String style : currentStyles) {
                     if (!style.startsWith("size-")) {
@@ -198,14 +163,11 @@ public class TabManager {
                     }
                 }
 
-                // Добавляем новый
                 newStyles.add("size-" + size);
 
-                // Применяем
                 textArea.clearStyle(start, end);
                 textArea.setStyle(start, end, newStyles);
             } else {
-                // Для всего текста, если нет выделения
                 String currentStyle = textArea.getStyle();
                 textArea.setStyle((currentStyle == null ? "" : currentStyle) +
                         " -fx-font-size: " + size + "px;");
@@ -236,7 +198,6 @@ public class TabManager {
             int start = textArea.getSelection().getStart();
             int end = textArea.getSelection().getEnd();
 
-            // Получаем текущие стили первого символа выделения
             Set<String> currentStyles = new HashSet<>();
             Object styleObject = textArea.getStyleOfChar(start);
             if (styleObject instanceof Collection<?>) {
@@ -245,7 +206,6 @@ public class TabManager {
                 currentStyles.addAll(styles);
             }
 
-            // Определяем текущее состояние стилей
             boolean isBold = currentStyles.contains("text-bold") ||
                     currentStyles.stream().anyMatch(s -> s.contains("bold"));
             boolean isItalic = currentStyles.contains("text-italic") ||
@@ -255,7 +215,6 @@ public class TabManager {
             boolean isStrikethrough = currentStyles.contains("text-strikethrough") ||
                     currentStyles.stream().anyMatch(s -> s.contains("strikethrough"));
 
-            // Обновляем состояние в зависимости от запрошенного стиля
             switch (styleType) {
                 case "bold":
                     isBold = !isBold;
@@ -271,7 +230,6 @@ public class TabManager {
                     break;
             }
 
-            // Формируем новый набор стилей
             Set<String> newStyles = new HashSet<>();
             if (isBold) {
                 newStyles.add("text-bold");
@@ -290,6 +248,90 @@ public class TabManager {
             textArea.clearStyle(start, end);
             textArea.setStyle(start, end, newStyles);
         }
+    }
+
+    public StyledDocument createStyledDocument() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea == null) return new StyledDocument();
+
+        String text = textArea.getText();
+        List<TextStyle> styles = getCurrentTextStyles();
+        return new StyledDocument(text, styles);
+    }
+
+    public List<TextStyle> getCurrentTextStyles() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        List<TextStyle> styles = new ArrayList<>();
+
+        if (textArea != null && textArea.getLength() > 0) {
+            String fullText = textArea.getText();
+            int length = fullText.length();
+
+            if (length == 0) return styles;
+
+            int start = 0;
+            Set<String> currentStyles = getEffectiveStyles(textArea, 0);
+
+            for (int i = 1; i < length; i++) {
+                Set<String> newStyles = getEffectiveStyles(textArea, i);
+
+                if (!stylesEqual(currentStyles, newStyles)) {
+                    styles.add(createTextStyle(start, i-1, currentStyles));
+                    start = i;
+                    currentStyles = newStyles;
+                }
+            }
+
+            styles.add(createTextStyle(start, length-1, currentStyles));
+        }
+
+        return styles;
+    }
+
+    private Set<String> getEffectiveStyles(StyleClassedTextArea textArea, int position) {
+        Set<String> styles = new HashSet<>();
+
+        Object styleObj = textArea.getStyleOfChar(position);
+        if (styleObj instanceof Set) {
+            @SuppressWarnings("unchecked")
+            Set<String> charStyles = (Set<String>) styleObj;
+            styles.addAll(charStyles);
+        }
+
+        return styles;
+    }
+
+    private TextStyle createTextStyle(int start, int end, Set<String> styles) {
+        String fontFamily = "Consolas";
+        int fontSize = 14;
+        boolean bold = false;
+        boolean italic = false;
+        boolean underline = false;
+        boolean strikethrough = false;
+
+        for (String style : styles) {
+            if (style.startsWith("font-family:")) {
+                fontFamily = style.substring("font-family:".length());
+            } else if (style.startsWith("size-")) {
+                fontSize = Integer.parseInt(style.substring("size-".length()));
+            } else if (style.equals("text-bold")) {
+                bold = true;
+            } else if (style.equals("text-italic")) {
+                italic = true;
+            } else if (style.equals("text-underline")) {
+                underline = true;
+            } else if (style.equals("text-strikethrough")) {
+                strikethrough = true;
+            }
+        }
+
+        return new TextStyle(start, end, fontFamily, fontSize, bold, italic, underline, strikethrough);
+    }
+
+    private boolean stylesEqual(Set<String> s1, Set<String> s2) {
+        if (s1 == s2) return true;
+        if (s1 == null || s2 == null) return false;
+        return s1.equals(s2);
     }
 
 }

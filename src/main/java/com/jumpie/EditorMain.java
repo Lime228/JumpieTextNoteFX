@@ -18,18 +18,14 @@ public class EditorMain extends Application implements TextAppender {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // 1. Сначала инициализируем основные компоненты
             tabManager = new TabManager();
             fileManager = new FileManager(primaryStage, tabManager);
             voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
 
-            // 2. Затем создаем меню, которое зависит от предыдущих компонентов
             editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
 
-            // 3. Настройка основного интерфейса
             BorderPane root = new BorderPane();
 
-            // В методе start() замените создание topContainer на это:
             HBox topContainer = new HBox();
             topContainer.getStyleClass().add("top-container");
             topContainer.getChildren().addAll(
@@ -42,10 +38,8 @@ public class EditorMain extends Application implements TextAppender {
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());
 
-            // Настройка сцены
             Scene scene = new Scene(root, 925, 600);
 
-            // Загрузка CSS стилей
             try {
                 String css = getClass().getResource("/com/jumpie/styles.css").toExternalForm();
                 scene.getStylesheets().add(css);
@@ -57,7 +51,6 @@ public class EditorMain extends Application implements TextAppender {
             primaryStage.setTitle("Jumpie TextNote");
             primaryStage.show();
 
-            // Настройка обработчика закрытия окна
             primaryStage.setOnCloseRequest(e -> {
                 voiceService.dispose();
                 primaryStage.close();

@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FileManager {
     private final TabManager tabManager;
@@ -19,6 +21,11 @@ public class FileManager {
 
     public void openFile() {
         FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+
         File file = fileChooser.showOpenDialog(parentStage);
         if (file == null) return;
 
@@ -26,17 +33,18 @@ public class FileManager {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         if (textArea == null) return;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            StyledDocument doc = (StyledDocument) ois.readObject();
+            textArea.replaceText(doc.getText());
+
+            for (TextStyle style : doc.getStyles()) {
+                applyStyleToTextArea(textArea, style);
             }
-            textArea.replaceText(content.toString());
+
             tabManager.getCurrentTab().setUserData(file);
             tabManager.updateTabTitle(file.getName());
-        } catch (IOException ex) {
-            showError("File Error", ex.getMessage());
+        } catch (Exception ex) {
+            showError("File Error", "Failed to open file: " + ex.getMessage());
         }
     }
 
@@ -51,8 +59,22 @@ public class FileManager {
         }
 
         FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+
+        if (currentFile != null) {
+            fileChooser.setInitialFileName(currentFile.getName());
+        } else {
+            fileChooser.setInitialFileName("Note.jpop");
+        }
+
         File file = fileChooser.showSaveDialog(parentStage);
         if (file != null) {
+            if (!file.getName().toLowerCase().endsWith(".jpop")) {
+                file = new File(file.getAbsolutePath() + ".jpop");
+            }
             writeFile(textArea, file);
             tabManager.getCurrentTab().setUserData(file);
             tabManager.updateTabTitle(file.getName());
@@ -60,11 +82,27 @@ public class FileManager {
     }
 
     private void writeFile(StyleClassedTextArea textArea, File file) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(textArea.getText());
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            StyledDocument doc = tabManager.createStyledDocument();
+            doc.optimizeStyles();
+            oos.writeObject(doc);
         } catch (IOException ex) {
-            showError("File Error", ex.getMessage());
+            showError("File Error", "Failed to save file: " + ex.getMessage());
         }
+    }
+
+    private void applyStyleToTextArea(StyleClassedTextArea textArea, TextStyle style) {
+        Set<String> styles = new HashSet<>();
+
+        if (style.isBold()) styles.add("text-bold");
+        if (style.isItalic()) styles.add("text-italic");
+        if (style.isUnderline()) styles.add("text-underline");
+        if (style.isStrikethrough()) styles.add("text-strikethrough");
+
+        styles.add("font-family:" + style.getFontFamily());
+        styles.add("size-" + style.getFontSize());
+
+        textArea.setStyle(style.getStart(), style.getEnd() + 1, styles);
     }
 
     private void showError(String title, String message) {

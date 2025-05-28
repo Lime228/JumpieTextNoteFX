@@ -4,8 +4,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.util.Set;
@@ -54,7 +52,6 @@ public class EditorMenuBar {
         underlineBtn = createStyleToggleButton("U", "button-underline");
         strikethroughBtn = createStyleToggleButton("S", "button-strikethrough");
 
-        // Добавляем элементы на панель инструментов
         toolBar.getChildren().addAll(
                 voiceButton,
                 createSeparator(),
@@ -99,8 +96,7 @@ public class EditorMenuBar {
 
     private ComboBox<Integer> createSizeComboBox() {
         ComboBox<Integer> combo = new ComboBox<>();
-        // Увеличиваем шаг до 10px и добавляем больше значений
-        for (int i = 8; i <= 40; i += 2) { // Шаг изменен с 2 на 2, можно изменить на другой шаг по необходимости
+        for (int i = 8; i <= 40; i += 2) {
             combo.getItems().add(i);
         }
         combo.setValue(14);
