@@ -147,8 +147,29 @@ public class TabManager {
             if (textArea.getSelection().getLength() > 0) {
                 int start = textArea.getSelection().getStart();
                 int end = textArea.getSelection().getEnd();
-                textArea.setStyle(start, end, Collections.singleton("font-family:" + fontFamily));
+
+                // Получаем текущие стили
+                Set<String> currentStyles = new HashSet<>();
+                if (textArea.getStyleOfChar(start) != null) {
+                    currentStyles.addAll((Set<String>) textArea.getStyleOfChar(start));
+                }
+
+                // Удаляем старое семейство шрифтов
+                Set<String> newStyles = new HashSet<>();
+                for (String style : currentStyles) {
+                    if (!style.startsWith("font-family:")) {
+                        newStyles.add(style);
+                    }
+                }
+
+                // Добавляем новое
+                newStyles.add("font-family:" + fontFamily);
+
+                // Применяем
+                textArea.clearStyle(start, end);
+                textArea.setStyle(start, end, newStyles);
             } else {
+                // Для всего текста, если нет выделения
                 String currentStyle = textArea.getStyle();
                 textArea.setStyle((currentStyle == null ? "" : currentStyle) +
                         " -fx-font-family: '" + fontFamily + "';");
@@ -162,8 +183,29 @@ public class TabManager {
             if (textArea.getSelection().getLength() > 0) {
                 int start = textArea.getSelection().getStart();
                 int end = textArea.getSelection().getEnd();
-                textArea.setStyle(start, end, Collections.singleton("size-" + size));
+
+                // Получаем текущие стили
+                Set<String> currentStyles = new HashSet<>();
+                if (textArea.getStyleOfChar(start) != null) {
+                    currentStyles.addAll(textArea.getStyleOfChar(start));
+                }
+
+                // Удаляем старый размер
+                Set<String> newStyles = new HashSet<>();
+                for (String style : currentStyles) {
+                    if (!style.startsWith("size-")) {
+                        newStyles.add(style);
+                    }
+                }
+
+                // Добавляем новый
+                newStyles.add("size-" + size);
+
+                // Применяем
+                textArea.clearStyle(start, end);
+                textArea.setStyle(start, end, newStyles);
             } else {
+                // Для всего текста, если нет выделения
                 String currentStyle = textArea.getStyle();
                 textArea.setStyle((currentStyle == null ? "" : currentStyle) +
                         " -fx-font-size: " + size + "px;");
@@ -171,97 +213,83 @@ public class TabManager {
         }
     }
 
+
     public void toggleSelectionBold() {
-        StyleClassedTextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            if (textArea.getSelection().getLength() > 0) {
-                int start = textArea.getSelection().getStart();
-                int end = textArea.getSelection().getEnd();
-
-                Set<String> styles = new HashSet<>();
-                if (textArea.getStyleOfChar(start) != null) {
-                    styles.addAll((Set<String>) textArea.getStyleOfChar(start));
-                }
-
-                boolean isBold = styles.contains("text-bold") || styles.contains("text-bold-italic");
-                boolean isItalic = styles.contains("text-italic");
-
-                textArea.clearStyle(start, end);
-
-                Set<String> newStyles = new HashSet<>();
-                // Сохраняем размер шрифта
-                for (String style : styles) {
-                    if (style.startsWith("size-") || style.startsWith("font-family:")) {
-                        newStyles.add(style);
-                    }
-                }
-
-                if (!isBold && isItalic) {
-                    newStyles.add("text-bold-italic");
-                } else if (!isBold) {
-                    newStyles.add("text-bold");
-                } else if (isItalic) {
-                    newStyles.add("text-italic");
-                }
-
-                textArea.setStyle(start, end, newStyles);
-            } else {
-                String currentStyle = textArea.getStyle();
-                boolean isBold = currentStyle != null && currentStyle.contains("-fx-font-weight: bold");
-
-                if (isBold) {
-                    textArea.setStyle(currentStyle.replace("-fx-font-weight: bold;", ""));
-                } else {
-                    textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-weight: bold;");
-                }
-            }
-        }
+        applyTextStyle("bold");
     }
 
     public void toggleSelectionItalic() {
+        applyTextStyle("italic");
+    }
+
+    public void toggleSelectionUnderline() {
+        applyTextStyle("underline");
+    }
+
+    public void toggleSelectionStrikethrough() {
+        applyTextStyle("strikethrough");
+    }
+
+    private void applyTextStyle(String styleType) {
         StyleClassedTextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            if (textArea.getSelection().getLength() > 0) {
-                int start = textArea.getSelection().getStart();
-                int end = textArea.getSelection().getEnd();
+        if (textArea != null && textArea.getSelection().getLength() > 0) {
+            int start = textArea.getSelection().getStart();
+            int end = textArea.getSelection().getEnd();
 
-                Set<String> styles = new HashSet<>();
-                if (textArea.getStyleOfChar(start) != null) {
-                    styles.addAll((Set<String>) textArea.getStyleOfChar(start));
-                }
-
-                boolean isItalic = styles.contains("text-italic") || styles.contains("text-bold-italic");
-                boolean isBold = styles.contains("text-bold");
-
-                textArea.clearStyle(start, end);
-
-                Set<String> newStyles = new HashSet<>();
-                // Сохраняем размер шрифта
-                for (String style : styles) {
-                    if (style.startsWith("size-") || style.startsWith("font-family:")) {
-                        newStyles.add(style);
-                    }
-                }
-
-                if (!isItalic && isBold) {
-                    newStyles.add("text-bold-italic");
-                } else if (!isItalic) {
-                    newStyles.add("text-italic");
-                } else if (isBold) {
-                    newStyles.add("text-bold");
-                }
-
-                textArea.setStyle(start, end, newStyles);
-            } else {
-                String currentStyle = textArea.getStyle();
-                boolean isItalic = currentStyle != null && currentStyle.contains("-fx-font-style: italic");
-
-                if (isItalic) {
-                    textArea.setStyle(currentStyle.replace("-fx-font-style: italic;", ""));
-                } else {
-                    textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-style: italic;");
-                }
+            // Получаем текущие стили первого символа выделения
+            Set<String> currentStyles = new HashSet<>();
+            Object styleObject = textArea.getStyleOfChar(start);
+            if (styleObject instanceof Collection<?>) {
+                @SuppressWarnings("unchecked")
+                Collection<String> styles = (Collection<String>) styleObject;
+                currentStyles.addAll(styles);
             }
+
+            // Определяем текущее состояние стилей
+            boolean isBold = currentStyles.contains("text-bold") ||
+                    currentStyles.stream().anyMatch(s -> s.contains("bold"));
+            boolean isItalic = currentStyles.contains("text-italic") ||
+                    currentStyles.stream().anyMatch(s -> s.contains("italic"));
+            boolean isUnderline = currentStyles.contains("text-underline") ||
+                    currentStyles.stream().anyMatch(s -> s.contains("underline"));
+            boolean isStrikethrough = currentStyles.contains("text-strikethrough") ||
+                    currentStyles.stream().anyMatch(s -> s.contains("strikethrough"));
+
+            // Обновляем состояние в зависимости от запрошенного стиля
+            switch (styleType) {
+                case "bold":
+                    isBold = !isBold;
+                    break;
+                case "italic":
+                    isItalic = !isItalic;
+                    break;
+                case "underline":
+                    isUnderline = !isUnderline;
+                    break;
+                case "strikethrough":
+                    isStrikethrough = !isStrikethrough;
+                    break;
+            }
+
+            // Формируем новый набор стилей
+            Set<String> newStyles = new HashSet<>();
+            if (isBold) {
+                newStyles.add("text-bold");
+            }
+            if (isItalic) {
+                newStyles.add("text-italic");
+            }
+            if (isUnderline) {
+                newStyles.add("text-underline");
+            }
+            if (isStrikethrough) {
+                newStyles.add("text-strikethrough");
+            }
+
+            // Применяем стили
+            textArea.clearStyle(start, end);
+            textArea.setStyle(start, end, newStyles);
         }
     }
+
 }

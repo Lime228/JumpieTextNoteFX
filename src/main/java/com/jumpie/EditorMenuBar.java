@@ -18,6 +18,8 @@ public class EditorMenuBar {
     private final ComboBox<Integer> sizeCombo;
     private final ToggleButton boldBtn;
     private final ToggleButton italicBtn;
+    private final ToggleButton underlineBtn;
+    private final ToggleButton strikethroughBtn;
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
@@ -47,8 +49,10 @@ public class EditorMenuBar {
         sizeCombo = createSizeComboBox();
 
         // Кнопки стилей
-        boldBtn = createStyleToggleButton("B", FontWeight.BOLD);
-        italicBtn = createStyleToggleButton("I", FontPosture.ITALIC);
+        boldBtn = createStyleToggleButton("B", "button-bold");
+        italicBtn = createStyleToggleButton("I", "button-italic");
+        underlineBtn = createStyleToggleButton("U", "button-underline");
+        strikethroughBtn = createStyleToggleButton("S", "button-strikethrough");
 
         // Добавляем элементы на панель инструментов
         toolBar.getChildren().addAll(
@@ -58,7 +62,7 @@ public class EditorMenuBar {
                 createSeparator(),
                 createLabel("Size:"), sizeCombo,
                 createSeparator(),
-                boldBtn, italicBtn,
+                boldBtn, italicBtn, underlineBtn, strikethroughBtn,
                 createSeparator()
         );
 
@@ -95,7 +99,10 @@ public class EditorMenuBar {
 
     private ComboBox<Integer> createSizeComboBox() {
         ComboBox<Integer> combo = new ComboBox<>();
-        combo.getItems().addAll(8, 10, 12, 14, 16, 18, 20, 24);
+        // Увеличиваем шаг до 10px и добавляем больше значений
+        for (int i = 8; i <= 40; i += 2) { // Шаг изменен с 2 на 2, можно изменить на другой шаг по необходимости
+            combo.getItems().add(i);
+        }
         combo.setValue(14);
         combo.setTooltip(new Tooltip("Select font size"));
         combo.setMinWidth(60);
@@ -103,8 +110,10 @@ public class EditorMenuBar {
         return combo;
     }
 
-    private ToggleButton createStyleToggleButton(String text, Object style) {
-        ToggleButton button = new ToggleButton(text);
+
+    private ToggleButton createStyleToggleButton(String text, String styleClass) {
+        ToggleButton button = new ToggleButton();
+        button.getStyleClass().add(styleClass);
         button.setMinWidth(30);
         button.setMaxWidth(30);
         return button;
@@ -164,22 +173,38 @@ public class EditorMenuBar {
             tabManager.toggleSelectionItalic();
             updateStyleButtons(tabManager);
         });
+
+        underlineBtn.setOnAction(e -> {
+            tabManager.toggleSelectionUnderline();
+            updateStyleButtons(tabManager);
+        });
+
+        strikethroughBtn.setOnAction(e -> {
+            tabManager.toggleSelectionStrikethrough();
+            updateStyleButtons(tabManager);
+        });
     }
 
     private void updateStyleButtons(TabManager tabManager) {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
-        if (textArea != null) {
-            if (textArea.getSelection().getLength() > 0) {
-                int pos = textArea.getSelection().getStart();
-                Set<String> styles = (Set<String>) textArea.getStyleOfChar(pos);
-                boldBtn.setSelected(styles.contains("text-bold") || styles.contains("text-bold-italic"));
-                italicBtn.setSelected(styles.contains("text-italic") || styles.contains("text-bold-italic"));
-            } else {
-                // Для всего текста
-                String style = textArea.getStyle();
-                boldBtn.setSelected(style != null && style.contains("-fx-font-weight: bold"));
-                italicBtn.setSelected(style != null && style.contains("-fx-font-style: italic"));
-            }
+        if (textArea != null && textArea.getSelection().getLength() > 0) {
+            int pos = textArea.getSelection().getStart();
+            Set<String> styles = (Set<String>) textArea.getStyleOfChar(pos);
+
+            boolean isBold = styles.stream().anyMatch(s -> s.contains("bold"));
+            boolean isItalic = styles.stream().anyMatch(s -> s.contains("italic"));
+            boolean isUnderline = styles.stream().anyMatch(s -> s.contains("underline"));
+            boolean isStrikethrough = styles.stream().anyMatch(s -> s.contains("strikethrough"));
+
+            boldBtn.setSelected(isBold);
+            italicBtn.setSelected(isItalic);
+            underlineBtn.setSelected(isUnderline);
+            strikethroughBtn.setSelected(isStrikethrough);
+        } else {
+            boldBtn.setSelected(false);
+            italicBtn.setSelected(false);
+            underlineBtn.setSelected(false);
+            strikethroughBtn.setSelected(false);
         }
     }
 

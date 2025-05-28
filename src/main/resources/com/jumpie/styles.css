@@ -215,21 +215,82 @@
     -fx-background-color: #d69898;
 }
 
-/* Стили текста */
 .text-bold {
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
 }
 
 .text-italic {
     -fx-font-style: italic;
-    -fx-text-fill: #333333;
 }
 
+.text-underline {
+    -fx-underline: true;
+}
+
+.text-strikethrough {
+    -fx-strikethrough: true;
+}
+
+/* Комбинированные стили */
 .text-bold-italic {
     -fx-font-weight: bold;
     -fx-font-style: italic;
-    -fx-text-fill: #333333;
+}
+
+.text-bold-underline {
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+.text-bold-strikethrough {
+    -fx-font-weight: bold;
+    -fx-strikethrough: true;
+}
+
+.text-italic-underline {
+    -fx-font-style: italic;
+    -fx-underline: true;
+}
+
+.text-italic-strikethrough {
+    -fx-font-style: italic;
+    -fx-strikethrough: true;
+}
+
+.text-underline-strikethrough {
+    -fx-underline: true;
+    -fx-strikethrough: true;
+}
+
+.text-bold-italic-underline {
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-underline: true;
+}
+
+.text-bold-italic-strikethrough {
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-strikethrough: true;
+}
+
+.text-bold-underline-strikethrough {
+    -fx-font-weight: bold;
+    -fx-underline: true;
+    -fx-strikethrough: true;
+}
+
+.text-italic-underline-strikethrough {
+    -fx-font-style: italic;
+    -fx-underline: true;
+    -fx-strikethrough: true;
+}
+
+.text-bold-italic-underline-strikethrough {
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-underline: true;
+    -fx-strikethrough: true;
 }
 
 /* Стили размеров */
@@ -240,7 +301,16 @@
 .size-16 { -fx-font-size: 16px; -fx-text-fill: #333333;}
 .size-18 { -fx-font-size: 18px; -fx-text-fill: #333333;}
 .size-20 { -fx-font-size: 20px; -fx-text-fill: #333333;}
+.size-22 { -fx-font-size: 22px; -fx-text-fill: #333333;}
 .size-24 { -fx-font-size: 24px; -fx-text-fill: #333333;}
+.size-26 { -fx-font-size: 26px; -fx-text-fill: #333333;}
+.size-28 { -fx-font-size: 28px; -fx-text-fill: #333333;}
+.size-30 { -fx-font-size: 30px; -fx-text-fill: #333333;}
+.size-32 { -fx-font-size: 32px; -fx-text-fill: #333333;}
+.size-34 { -fx-font-size: 34px; -fx-text-fill: #333333;}
+.size-36 { -fx-font-size: 36px; -fx-text-fill: #333333;}
+.size-38 { -fx-font-size: 38px; -fx-text-fill: #333333;}
+.size-40 { -fx-font-size: 40px; -fx-text-fill: #333333;}
 
 /* Общие стили для выравнивания */
 .label {

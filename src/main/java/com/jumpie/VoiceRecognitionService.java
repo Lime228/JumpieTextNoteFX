@@ -101,10 +101,28 @@ public class VoiceRecognitionService {
             String result = recognizer.getResult();
             String text = extractTextFromResult(result);
             if (!text.isEmpty()) {
-                javafx.application.Platform.runLater(() -> appender.appendText(text));
+                // Удаляем последний пробел и добавляем первую заглавную букву и точку в конце
+                if (text.endsWith(" ")) {
+                    text = text.substring(0, text.length() - 1);
+                }
+                text = capitalize(text) + ". ";
+                String finalText = text;
+                javafx.application.Platform.runLater(() -> appender.appendText(finalText));
             }
         }
     }
+
+    private String capitalize(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        char firstChar = Character.toUpperCase(text.charAt(0));
+        return firstChar + text.substring(1);
+    }
+
+
+
+
 
     public synchronized void stopRecognition() {
         if (!isListening) return;
