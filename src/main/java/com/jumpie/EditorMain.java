@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
@@ -28,12 +29,15 @@ public class EditorMain extends Application implements TextAppender {
             // 3. Настройка основного интерфейса
             BorderPane root = new BorderPane();
 
-            // Создаем контейнер для верхней панели (меню + инструменты)
+            // В методе start() замените создание topContainer на это:
             HBox topContainer = new HBox();
+            topContainer.getStyleClass().add("top-container");
             topContainer.getChildren().addAll(
                     editorMenuBar.getMenuBar(),
                     editorMenuBar.getToolBar()
             );
+            HBox.setHgrow(editorMenuBar.getMenuBar(), Priority.ALWAYS);
+            HBox.setHgrow(editorMenuBar.getToolBar(), Priority.ALWAYS);
 
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());

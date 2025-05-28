@@ -1,177 +1,257 @@
 /* Основные цвета */
 .root {
-    -fx-base: #3c3f41;
-    -fx-background: #3c3f41;
-    -fx-control-inner-background: #2d2d32;
-    -fx-text-fill: white;
+    -fx-base: #f5f5f0;
+    -fx-background: #f5f5f0;
+    -fx-control-inner-background: #f8f8f3;
+    -fx-text-fill: #333333;
 }
+
+/* Главная панель (меню + инструменты) */
+.top-container {
+    -fx-background-color: #e8e8e3;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #d0d0cb;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+    -fx-alignment: center-left;
+}
+
 
 /* Меню */
 .menu-bar {
-    -fx-background-color: #46464b;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 .menu {
-    -fx-text-fill: white;
-    -fx-padding: 5 15;
+    -fx-text-fill: #555555;
+    -fx-padding: 8 15;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-min-height: 36px; /* Фиксированная высота для выравнивания */
+    -fx-alignment: center;
 }
 
 .menu:hover, .menu:showing {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #d8e6e3;
+    -fx-text-fill: #333333;
 }
 
 .menu-item {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
+    -fx-background-color: #f0f0eb;
+    -fx-text-fill: #555555;
+    -fx-padding: 8 15;
 }
 
 .menu-item:hover {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #d8e6e3;
+    -fx-text-fill: #333333;
 }
 
 .context-menu {
-    -fx-background-color: #505055;
-    -fx-border-color: #3c3f41;
+    -fx-background-color: #f0f0eb;
+    -fx-border-color: #d0d0cb;
+    -fx-border-width: 1;
+    -fx-background-radius: 2;
 }
 
 /* Панель инструментов */
 .tool-bar {
-    -fx-background-color: #505055;
-    -fx-padding: 5;
-    -fx-spacing: 5;
+    -fx-background-color: transparent;
+    -fx-padding: 0 10;
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+    -fx-min-height: 36px; /* Фиксированная высота для выравнивания */
 }
 
+/* Общие стили для кнопок */
 .button, .toggle-button {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-    -fx-border-color: #646469;
+    -fx-background-color: transparent;
+    -fx-text-fill: #555555;
+    -fx-border-color: #d0d0cb;
     -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
     -fx-padding: 5 12;
+    -fx-min-height: 30px;
 }
 
 .button:hover, .toggle-button:hover {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #d8e6e3;
+    -fx-text-fill: #333333;
 }
 
 .toggle-button:selected {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #c0d6d3;
+    -fx-text-fill: #333333;
 }
 
 /* Вкладки */
 .tab-pane {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: #f5f5f0;
 }
 
 .tab {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
+    -fx-background-color: #e8e8e3;
+    -fx-text-fill: #555555;
+    -fx-border-color: #d0d0cb;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 5 15;
 }
 
 .tab:selected {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #f5f5f0;
+    -fx-text-fill: #333333;
+    -fx-border-color: #d0d0cb;
+    -fx-border-width: 1 1 0 1;
 }
 
 .tab-header-area {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: #e8e8e3;
+    -fx-padding: 0;
+}
+
+.tab-header-background {
+    -fx-background-color: #e8e8e3;
 }
 
 /* Текстовая область */
 .styled-text-area, .styled-text-area .content {
-    -fx-background-color: #c9c2b5;
-    -fx-text-fill: white;
+    -fx-background-color: #f8f8f3;
+    -fx-text-fill: #333333;
     -fx-font-family: Consolas;
     -fx-font-size: 14px;
+    -fx-background-insets: 0;
+    -fx-padding: 10;
 }
 
 .styled-text-area .paragraph-box {
-    -fx-text-fill: white;
+    -fx-text-fill: #333333;
+    -fx-padding: 0;
 }
 
 /* Выпадающие списки */
 .combo-box {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-}
-
-.combo-box .list-cell {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-}
-
-.combo-box .list-view {
-    -fx-background-color: #505055;
-}
-
-.combo-box .list-cell:hover {
-    -fx-background-color: #60d0bf;
-    -fx-text-fill: black;
+    -fx-background-color: #f0f0eb;
+    -fx-text-fill: #555555;
+    -fx-border-color: #d0d0cb;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 3;
+    -fx-min-width: 120px;
+    -fx-min-height: 30px;
 }
 
 /* Разделители */
 .separator {
-    -fx-background-color: #646469;
-}
-
-/* Полоса прокрутки */
-.scroll-bar {
-    -fx-background-color: #3c3f41;
-}
-
-.scroll-bar .thumb {
-    -fx-background-color: #505055;
-}
-
-.scroll-bar .thumb:hover {
-    -fx-background-color: #60d0bf;
+    -fx-background-color: #d0d0cb;
+    -fx-padding: 0 5;
+    -fx-min-height: 30px;
 }
 
 /* Специальные кнопки */
 .record-button {
-    -fx-background-color: #505055;
-    -fx-text-fill: white;
-}
-
-.record-button:hover {
-    -fx-background-color: #60d0bf;
+    -fx-background-color: transparent;
+    -fx-text-fill: #555555;
+    -fx-border-color: #d0d0cb;
+    -fx-min-width: 80px;
 }
 
 .recording-button {
-    -fx-background-color: #ff4444;
-    -fx-text-fill: black;
+    -fx-background-color: #e6a8a8;
+    -fx-text-fill: #333333;
+    -fx-border-color: #d0a0a0;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #f0f0eb;
+    -fx-text-fill: #555555;
+    -fx-padding: 5 8;
+}
+
+.combo-box .list-view {
+    -fx-background-color: #f0f0eb;
+    -fx-border-color: #d0d0cb;
+    -fx-border-width: 1;
+    -fx-background-radius: 3;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #d8e6e3;
+    -fx-text-fill: #333333;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+
+/* Полоса прокрутки */
+.scroll-bar {
+    -fx-background-color: #f0f0eb;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #c0c0bb;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #a0a6a5;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 5;
+}
+
+
+.record-button:hover {
+    -fx-background-color: #d8e6e3;
 }
 
 .recording-button:hover {
-    -fx-background-color: #ff6666;
+    -fx-background-color: #d69898;
 }
 
 /* Стили текста */
 .text-bold {
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #333333;
 }
 
 .text-italic {
     -fx-font-style: italic;
-    -fx-text-fill: white;
+    -fx-text-fill: #333333;
 }
 
 .text-bold-italic {
     -fx-font-weight: bold;
     -fx-font-style: italic;
-    -fx-text-fill: white;
+    -fx-text-fill: #333333;
 }
 
 /* Стили размеров */
-.size-8 { -fx-font-size: 8px; -fx-text-fill: white;}
-.size-10 { -fx-font-size: 10px; -fx-text-fill: white;}
-.size-12 { -fx-font-size: 12px; -fx-text-fill: white;}
-.size-14 { -fx-font-size: 14px; -fx-text-fill: white;}
-.size-16 { -fx-font-size: 16px; -fx-text-fill: white;}
-.size-18 { -fx-font-size: 18px; -fx-text-fill: white;}
-.size-20 { -fx-font-size: 20px; -fx-text-fill: white;}
-.size-24 { -fx-font-size: 24px; -fx-text-fill: white;}
+.size-8 { -fx-font-size: 8px; -fx-text-fill: #333333;}
+.size-10 { -fx-font-size: 10px; -fx-text-fill: #333333;}
+.size-12 { -fx-font-size: 12px; -fx-text-fill: #333333;}
+.size-14 { -fx-font-size: 14px; -fx-text-fill: #333333;}
+.size-16 { -fx-font-size: 16px; -fx-text-fill: #333333;}
+.size-18 { -fx-font-size: 18px; -fx-text-fill: #333333;}
+.size-20 { -fx-font-size: 20px; -fx-text-fill: #333333;}
+.size-24 { -fx-font-size: 24px; -fx-text-fill: #333333;}
+
+/* Общие стили для выравнивания */
+.label {
+    -fx-text-fill: #555555;
+    -fx-padding: 0 5 0 0;
+}
+
+/* Контейнер верхней панели */
+.top-container {
+    -fx-background-color: #e8e8e3;
+    -fx-alignment: center-left;
+    -fx-spacing: 0;
+    -fx-padding: 0;
+}
