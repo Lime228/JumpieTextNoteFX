@@ -1,6 +1,10 @@
 package com.jumpie;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
@@ -46,11 +50,10 @@ public class EditorMenuBar {
         fontCombo = createFontComboBox();
         sizeCombo = createSizeComboBox();
 
-        // Кнопки стилей
-        boldBtn = createStyleToggleButton("B", "button-bold");
-        italicBtn = createStyleToggleButton("I", "button-italic");
-        underlineBtn = createStyleToggleButton("U", "button-underline");
-        strikethroughBtn = createStyleToggleButton("S", "button-strikethrough");
+        boldBtn = createStyleToggleButton(FontAwesomeIcon.BOLD, "button-bold");
+        italicBtn = createStyleToggleButton(FontAwesomeIcon.ITALIC, "button-italic");
+        underlineBtn = createStyleToggleButton(FontAwesomeIcon.UNDERLINE, "button-underline");
+        strikethroughBtn = createStyleToggleButton(FontAwesomeIcon.STRIKETHROUGH, "button-strikethrough");
 
         toolBar.getChildren().addAll(
                 voiceButton,
@@ -107,11 +110,18 @@ public class EditorMenuBar {
     }
 
 
-    private ToggleButton createStyleToggleButton(String text, String styleClass) {
+//    private ToggleButton createStyleToggleButton(String text, String styleClass) {
+//        ToggleButton button = new ToggleButton();
+//        button.getStyleClass().add(styleClass);
+//        button.setMinWidth(30);
+//        button.setMaxWidth(30);
+//        return button;
+//    }
+
+    private ToggleButton createStyleToggleButton(FontAwesomeIcon icon, String styleClass) {
         ToggleButton button = new ToggleButton();
+        button.setGraphic(new FontAwesomeIconView(icon));
         button.getStyleClass().add(styleClass);
-        button.setMinWidth(30);
-        button.setMaxWidth(30);
         return button;
     }
 

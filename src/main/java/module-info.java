@@ -1,5 +1,4 @@
 module com.jumpie.jumpietextnotefx {
-    requires javafx.controls;
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
@@ -8,6 +7,7 @@ module com.jumpie.jumpietextnotefx {
     requires vosk;
     requires java.desktop;
     requires org.fxmisc.richtext;
+    requires de.jensd.fx.glyphs.fontawesome;
 
     opens com.jumpie to javafx.fxml;
     exports com.jumpie;
