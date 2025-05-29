@@ -112,4 +112,26 @@ public class FileManager {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    public void savePreferences(Theme currentTheme) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream("preferences.jumpie"))) {
+            oos.writeObject(currentTheme);
+        } catch (IOException ex) {
+            System.err.println("Не удалось сохранить настройки: " + ex.getMessage());
+        }
+    }
+
+    public Theme loadPreferences() {
+        File prefsFile = new File("preferences.jumpie");
+        if (prefsFile.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(
+                    new FileInputStream(prefsFile))) {
+                return (Theme) ois.readObject();
+            } catch (Exception ex) {
+                System.err.println("Не удалось загрузить настройки: " + ex.getMessage());
+            }
+        }
+        return Theme.LIGHT; // Тема по умолчанию
+    }
 }

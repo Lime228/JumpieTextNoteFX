@@ -74,6 +74,15 @@ public class TabManager {
         }
     }
 
+    public void updateTextColor() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null) {
+            // Принудительно обновляем стиль текста
+            String text = textArea.getText();
+            textArea.replaceText(text);
+        }
+    }
+
 
     public void cut() {
         StyleClassedTextArea textArea = getCurrentTextArea();

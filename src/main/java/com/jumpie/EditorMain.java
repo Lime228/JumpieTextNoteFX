@@ -25,6 +25,9 @@ public class EditorMain extends Application implements TextAppender {
             editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
 
             BorderPane root = new BorderPane();
+//
+//            Theme savedTheme = fileManager.loadPreferences();
+//            editorMenuBar.changeTheme(savedTheme);
 
             HBox topContainer = new HBox();
             topContainer.getStyleClass().add("top-container");
@@ -38,14 +41,24 @@ public class EditorMain extends Application implements TextAppender {
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());
 
+//            Scene scene = new Scene(root, 925, 600);
+//
+//            try {
+//                String css = getClass().getResource("/com/jumpie/styles.css").toExternalForm();
+//                scene.getStylesheets().add(css);
+//            } catch (NullPointerException e) {
+//                System.err.println("CSS file not found. Using default styling.");
+//            }
+
+            // Загружаем тему после создания сцены
             Scene scene = new Scene(root, 925, 600);
 
-            try {
-                String css = getClass().getResource("/com/jumpie/styles.css").toExternalForm();
-                scene.getStylesheets().add(css);
-            } catch (NullPointerException e) {
-                System.err.println("CSS file not found. Using default styling.");
-            }
+            // Применяем тему
+            Theme savedTheme = fileManager.loadPreferences();
+            String themeCss = getClass().getResource(savedTheme.getCssPath()).toExternalForm();
+            scene.getStylesheets().add(themeCss);
+
+            primaryStage.setScene(scene);
 
             primaryStage.setScene(scene);
             primaryStage.setTitle("Jumpie TextNote");

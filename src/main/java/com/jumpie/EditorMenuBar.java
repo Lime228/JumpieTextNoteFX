@@ -2,6 +2,7 @@ package com.jumpie;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,6 +23,7 @@ public class EditorMenuBar {
     private final ToggleButton italicBtn;
     private final ToggleButton underlineBtn;
     private final ToggleButton strikethroughBtn;
+    private FileManager fileManager;
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
@@ -33,7 +35,9 @@ public class EditorMenuBar {
         // Создание меню Edit
         Menu editMenu = createMenu("Edit", "Cut", "Copy", "Paste");
 
-        menuBar.getMenus().addAll(fileMenu, editMenu);
+        Menu themeMenu = createThemeMenu();
+
+        menuBar.getMenus().addAll(fileMenu, editMenu, themeMenu);
 
         // Панель инструментов
         toolBar = new HBox(5);
@@ -57,13 +61,13 @@ public class EditorMenuBar {
 
         toolBar.getChildren().addAll(
                 voiceButton,
-                createSeparator(),
+//                createSeparator(),
                 createLabel("Font:"), fontCombo,
-                createSeparator(),
+//                createSeparator(),
                 createLabel("Size:"), sizeCombo,
-                createSeparator(),
-                boldBtn, italicBtn, underlineBtn, strikethroughBtn,
-                createSeparator()
+//                createSeparator(),
+                boldBtn, italicBtn, underlineBtn, strikethroughBtn
+//                createSeparator()
         );
 
         // Настройка обработчиков событий
@@ -125,9 +129,32 @@ public class EditorMenuBar {
         return button;
     }
 
+    private Menu createThemeMenu() {
+        Menu themeMenu = new Menu("Тема");
+        ToggleGroup themeGroup = new ToggleGroup();
+
+        for (Theme theme : Theme.values()) {
+            RadioMenuItem themeItem = new RadioMenuItem(theme.getName());
+            themeItem.setToggleGroup(themeGroup);
+            themeItem.setOnAction(e -> {
+                Scene scene = menuBar.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().removeIf(url ->
+                            url.contains("/com/jumpie/"));
+                    scene.getStylesheets().add(
+                            getClass().getResource(theme.getCssPath()).toExternalForm());
+                }
+            });
+            themeMenu.getItems().add(themeItem);
+        }
+
+        return themeMenu;
+    }
+
+
     private Label createLabel(String text) {
         Label label = new Label(text);
-        label.setStyle("-fx-text-fill: white; -fx-padding: 0 5 0 0;");
+        label.setStyle(".label");
         return label;
     }
 
