@@ -93,15 +93,15 @@
 
 .tab {
     -fx-background-color: #3b82f6;
-    -fx-text-fill: #0d1a2c;
+    -fx-text-fill: #0d1a2c !important;
     -fx-border-color: #2563eb;
     -fx-border-width: 0 0 1 0;
     -fx-padding: 5 15;
 }
 
 .tab:selected {
-    -fx-background-color: #ebf2fa;
-    -fx-text-fill: #1a365d;
+    -fx-background-color: #2c4785;
+    -fx-text-fill: #1a365d !important;
     -fx-border-color: #2563eb;
     -fx-border-width: 1 1 0 1;
 }
