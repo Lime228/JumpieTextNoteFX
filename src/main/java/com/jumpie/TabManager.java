@@ -3,6 +3,7 @@ package com.jumpie;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
+
 import java.util.*;
 
 public class TabManager {
@@ -40,7 +41,7 @@ public class TabManager {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        Tab tab = new Tab("New Document", scrollPane);
+        Tab tab = new Tab("Новая Записка", scrollPane);
         tab.setClosable(true);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
@@ -147,8 +148,7 @@ public class TabManager {
                 textArea.setStyle(start, end, newStyles);
             } else {
                 String currentStyle = textArea.getStyle();
-                textArea.setStyle((currentStyle == null ? "" : currentStyle) +
-                        " -fx-font-family: '" + fontFamily + "';");
+                textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-family: '" + fontFamily + "';");
             }
         }
     }
@@ -178,8 +178,7 @@ public class TabManager {
                 textArea.setStyle(start, end, newStyles);
             } else {
                 String currentStyle = textArea.getStyle();
-                textArea.setStyle((currentStyle == null ? "" : currentStyle) +
-                        " -fx-font-size: " + size + "px;");
+                textArea.setStyle((currentStyle == null ? "" : currentStyle) + " -fx-font-size: " + size + "px;");
             }
         }
     }
@@ -210,19 +209,14 @@ public class TabManager {
             Set<String> currentStyles = new HashSet<>();
             Object styleObject = textArea.getStyleOfChar(start);
             if (styleObject instanceof Collection<?>) {
-                @SuppressWarnings("unchecked")
-                Collection<String> styles = (Collection<String>) styleObject;
+                @SuppressWarnings("unchecked") Collection<String> styles = (Collection<String>) styleObject;
                 currentStyles.addAll(styles);
             }
 
-            boolean isBold = currentStyles.contains("text-bold") ||
-                    currentStyles.stream().anyMatch(s -> s.contains("bold"));
-            boolean isItalic = currentStyles.contains("text-italic") ||
-                    currentStyles.stream().anyMatch(s -> s.contains("italic"));
-            boolean isUnderline = currentStyles.contains("text-underline") ||
-                    currentStyles.stream().anyMatch(s -> s.contains("underline"));
-            boolean isStrikethrough = currentStyles.contains("text-strikethrough") ||
-                    currentStyles.stream().anyMatch(s -> s.contains("strikethrough"));
+            boolean isBold = currentStyles.contains("text-bold") || currentStyles.stream().anyMatch(s -> s.contains("bold"));
+            boolean isItalic = currentStyles.contains("text-italic") || currentStyles.stream().anyMatch(s -> s.contains("italic"));
+            boolean isUnderline = currentStyles.contains("text-underline") || currentStyles.stream().anyMatch(s -> s.contains("underline"));
+            boolean isStrikethrough = currentStyles.contains("text-strikethrough") || currentStyles.stream().anyMatch(s -> s.contains("strikethrough"));
 
             switch (styleType) {
                 case "bold":
@@ -285,13 +279,13 @@ public class TabManager {
                 Set<String> newStyles = getEffectiveStyles(textArea, i);
 
                 if (!stylesEqual(currentStyles, newStyles)) {
-                    styles.add(createTextStyle(start, i-1, currentStyles));
+                    styles.add(createTextStyle(start, i - 1, currentStyles));
                     start = i;
                     currentStyles = newStyles;
                 }
             }
 
-            styles.add(createTextStyle(start, length-1, currentStyles));
+            styles.add(createTextStyle(start, length - 1, currentStyles));
         }
 
         return styles;
@@ -302,8 +296,7 @@ public class TabManager {
 
         Object styleObj = textArea.getStyleOfChar(position);
         if (styleObj instanceof Set) {
-            @SuppressWarnings("unchecked")
-            Set<String> charStyles = (Set<String>) styleObj;
+            @SuppressWarnings("unchecked") Set<String> charStyles = (Set<String>) styleObj;
             styles.addAll(charStyles);
         }
 

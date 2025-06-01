@@ -21,10 +21,7 @@ public class FileManager {
 
     public void openFile() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
-        );
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"), new FileChooser.ExtensionFilter("All Files", "*.*"));
 
         File file = fileChooser.showOpenDialog(parentStage);
         if (file == null) return;
@@ -44,7 +41,7 @@ public class FileManager {
             tabManager.getCurrentTab().setUserData(file);
             tabManager.updateTabTitle(file.getName());
         } catch (Exception ex) {
-            showError("File Error", "Failed to open file: " + ex.getMessage());
+            showError("File Error", "Ошибка при открытии файла: " + ex.getMessage());
         }
     }
 
@@ -59,15 +56,12 @@ public class FileManager {
         }
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
-        );
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"), new FileChooser.ExtensionFilter("All Files", "*.*"));
 
         if (currentFile != null) {
             fileChooser.setInitialFileName(currentFile.getName());
         } else {
-            fileChooser.setInitialFileName("Note.jpop");
+            fileChooser.setInitialFileName("Записка.jpop");
         }
 
         File file = fileChooser.showSaveDialog(parentStage);
@@ -87,7 +81,7 @@ public class FileManager {
             doc.optimizeStyles();
             oos.writeObject(doc);
         } catch (IOException ex) {
-            showError("File Error", "Failed to save file: " + ex.getMessage());
+            showError("File Error", "Ошибка при сохранении файла: " + ex.getMessage());
         }
     }
 
@@ -114,8 +108,7 @@ public class FileManager {
     }
 
     public void savePreferences(Theme currentTheme) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(
-                new FileOutputStream("preferences.jumpie"))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("preferences.jumpie"))) {
             oos.writeObject(currentTheme);
         } catch (IOException ex) {
             System.err.println("Не удалось сохранить настройки: " + ex.getMessage());
@@ -125,8 +118,7 @@ public class FileManager {
     public Theme loadPreferences() {
         File prefsFile = new File("preferences.jumpie");
         if (prefsFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(
-                    new FileInputStream(prefsFile))) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(prefsFile))) {
                 return (Theme) ois.readObject();
             } catch (Exception ex) {
                 System.err.println("Не удалось загрузить настройки: " + ex.getMessage());

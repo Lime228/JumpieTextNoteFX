@@ -15,8 +15,7 @@ public class TextStyle implements Serializable {
     private boolean underline;
     private boolean strikethrough;
 
-    public TextStyle(int start, int end, String fontFamily, int fontSize,
-                     boolean bold, boolean italic, boolean underline, boolean strikethrough) {
+    public TextStyle(int start, int end, String fontFamily, int fontSize, boolean bold, boolean italic, boolean underline, boolean strikethrough) {
         this.start = start;
         this.end = end;
         this.fontFamily = fontFamily;
@@ -27,23 +26,41 @@ public class TextStyle implements Serializable {
         this.strikethrough = strikethrough;
     }
 
-    public int getStart() { return start; }
-    public int getEnd() { return end; }
-    public String getFontFamily() { return fontFamily; }
-    public int getFontSize() { return fontSize; }
-    public boolean isBold() { return bold; }
-    public boolean isItalic() { return italic; }
-    public boolean isUnderline() { return underline; }
-    public boolean isStrikethrough() { return strikethrough; }
+    public int getStart() {
+        return start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public boolean isItalic() {
+        return italic;
+    }
+
+    public boolean isUnderline() {
+        return underline;
+    }
+
+    public boolean isStrikethrough() {
+        return strikethrough;
+    }
 
     public boolean matches(TextStyle other) {
         if (other == null) return false;
-        return this.bold == other.bold &&
-                this.italic == other.italic &&
-                this.underline == other.underline &&
-                this.strikethrough == other.strikethrough &&
-                this.fontFamily.equals(other.fontFamily) &&
-                this.fontSize == other.fontSize;
+        return this.bold == other.bold && this.italic == other.italic && this.underline == other.underline && this.strikethrough == other.strikethrough && this.fontFamily.equals(other.fontFamily) && this.fontSize == other.fontSize;
     }
 
     public boolean matchesStyleSet(Set<String> styles) {
@@ -63,11 +80,6 @@ public class TextStyle implements Serializable {
             }
         }
 
-        return this.bold == currentBold &&
-                this.italic == currentItalic &&
-                this.underline == currentUnderline &&
-                this.strikethrough == currentStrikethrough &&
-                this.fontFamily.equals(currentFontFamily) &&
-                this.fontSize == currentFontSize;
+        return this.bold == currentBold && this.italic == currentItalic && this.underline == currentUnderline && this.strikethrough == currentStrikethrough && this.fontFamily.equals(currentFontFamily) && this.fontSize == currentFontSize;
     }
 }

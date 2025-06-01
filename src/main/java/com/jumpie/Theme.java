@@ -14,9 +14,16 @@ public enum Theme {
         this.cssPath = cssPath;
     }
 
-    public String getName() { return name; }
-    public String getCssPath() { return cssPath; }
+    public String getName() {
+        return name;
+    }
+
+    public String getCssPath() {
+        return cssPath;
+    }
 
     @Override
-    public String toString() { return name; }
+    public String toString() {
+        return name;
+    }
 }

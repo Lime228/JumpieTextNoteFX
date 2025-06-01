@@ -4,8 +4,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
@@ -23,7 +21,6 @@ public class EditorMenuBar {
     private final ToggleButton italicBtn;
     private final ToggleButton underlineBtn;
     private final ToggleButton strikethroughBtn;
-    private FileManager fileManager;
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
@@ -31,9 +28,9 @@ public class EditorMenuBar {
         menuBar.getStyleClass().add("menu-bar");
 
         // Создание меню File
-        Menu fileMenu = createMenu("File", "New Tab", "Open", "Save", "Save As", "Print", "Close Tab");
+        Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Распечатать", "Закрыть вкладку");
         // Создание меню Edit
-        Menu editMenu = createMenu("Edit", "Cut", "Copy", "Paste");
+        Menu editMenu = createMenu("Редактировать", "Вырезать", "Копировать", "Вставить");
 
         Menu themeMenu = createThemeMenu();
 
@@ -61,13 +58,9 @@ public class EditorMenuBar {
 
         toolBar.getChildren().addAll(
                 voiceButton,
-//                createSeparator(),
-                createLabel("Font:"), fontCombo,
-//                createSeparator(),
-                createLabel("Size:"), sizeCombo,
-//                createSeparator(),
+                createLabel("Шрифт:"), fontCombo,
+                createLabel("Размер:"), sizeCombo,
                 boldBtn, italicBtn, underlineBtn, strikethroughBtn
-//                createSeparator()
         );
 
         // Настройка обработчиков событий
@@ -84,8 +77,8 @@ public class EditorMenuBar {
     }
 
     private Button createToolButton() {
-        Button button = new Button("Record");
-        button.setTooltip(new Tooltip("Start/Stop voice input"));
+        Button button = new Button("Запись");
+        button.setTooltip(new Tooltip("Запустить/Остановить голосовой ввод"));
         button.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(button, Priority.ALWAYS);
         return button;
@@ -95,7 +88,7 @@ public class EditorMenuBar {
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(Font.getFamilies());
         combo.setValue("Consolas");
-        combo.setTooltip(new Tooltip("Select font"));
+        combo.setTooltip(new Tooltip("Выбрать шрифт"));
         combo.setMinWidth(120);
         combo.setMaxWidth(120);
         return combo;
@@ -107,20 +100,12 @@ public class EditorMenuBar {
             combo.getItems().add(i);
         }
         combo.setValue(14);
-        combo.setTooltip(new Tooltip("Select font size"));
+        combo.setTooltip(new Tooltip("Выбрать размер шрифта"));
         combo.setMinWidth(60);
         combo.setMaxWidth(60);
         return combo;
     }
 
-
-//    private ToggleButton createStyleToggleButton(String text, String styleClass) {
-//        ToggleButton button = new ToggleButton();
-//        button.getStyleClass().add(styleClass);
-//        button.setMinWidth(30);
-//        button.setMaxWidth(30);
-//        return button;
-//    }
 
     private ToggleButton createStyleToggleButton(FontAwesomeIcon icon, String styleClass) {
         ToggleButton button = new ToggleButton();
@@ -158,11 +143,6 @@ public class EditorMenuBar {
         return label;
     }
 
-    private Separator createSeparator() {
-        Separator separator = new Separator();
-        separator.setOrientation(javafx.geometry.Orientation.VERTICAL);
-        return separator;
-    }
 
     private void setupEventHandlers(EditorMain editorMain, FileManager fileManager,
                                     TabManager tabManager, VoiceRecognitionService voiceService) {
@@ -259,15 +239,15 @@ public class EditorMenuBar {
     public void updateVoiceButtonState(boolean isListening) {
         javafx.application.Platform.runLater(() -> {
             if (isListening) {
-                voiceButton.setText("Stop");
+                voiceButton.setText("Остановить");
                 voiceButton.getStyleClass().remove("record-button");
                 voiceButton.getStyleClass().add("recording-button");
-                voiceButton.setTooltip(new Tooltip("Stop voice input"));
+                voiceButton.setTooltip(new Tooltip("Остановить голосовой ввод"));
             } else {
-                voiceButton.setText("Record");
+                voiceButton.setText("Запись");
                 voiceButton.getStyleClass().remove("recording-button");
                 voiceButton.getStyleClass().add("record-button");
-                voiceButton.setTooltip(new Tooltip("Start voice input"));
+                voiceButton.setTooltip(new Tooltip("Запустить голосовой ввод"));
             }
         });
     }
