@@ -21,7 +21,11 @@ public class FileManager {
 
     public void openFile() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"), new FileChooser.ExtensionFilter("All Files", "*.*"));
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
 
         File file = fileChooser.showOpenDialog(parentStage);
         if (file == null) return;
@@ -30,18 +34,34 @@ public class FileManager {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         if (textArea == null) return;
 
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            StyledDocument doc = (StyledDocument) ois.readObject();
-            textArea.replaceText(doc.getText());
+        if (file.getName().toLowerCase().endsWith(".jpop")) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                StyledDocument doc = (StyledDocument) ois.readObject();
+                textArea.replaceText(doc.getText());
 
-            for (TextStyle style : doc.getStyles()) {
-                applyStyleToTextArea(textArea, style);
+                for (TextStyle style : doc.getStyles()) {
+                    applyStyleToTextArea(textArea, style);
+                }
+
+                tabManager.getCurrentTab().setUserData(file);
+                tabManager.updateTabTitle(file.getName());
+            } catch (Exception ex) {
+                showError("File Error", "Ошибка при открытии файла: " + ex.getMessage());
             }
-
-            tabManager.getCurrentTab().setUserData(file);
-            tabManager.updateTabTitle(file.getName());
-        } catch (Exception ex) {
-            showError("File Error", "Ошибка при открытии файла: " + ex.getMessage());
+        } else {
+            // Handle plain text files
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                textArea.replaceText(content.toString());
+                tabManager.getCurrentTab().setUserData(file);
+                tabManager.updateTabTitle(file.getName());
+            } catch (Exception ex) {
+                showError("File Error", "Ошибка при открытии текстового файла: " + ex.getMessage());
+            }
         }
     }
 
@@ -56,7 +76,11 @@ public class FileManager {
         }
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"), new FileChooser.ExtensionFilter("All Files", "*.*"));
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Jumpie's Piece of Paper", "*.jpop"),
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
 
         if (currentFile != null) {
             fileChooser.setInitialFileName(currentFile.getName());
@@ -66,7 +90,9 @@ public class FileManager {
 
         File file = fileChooser.showSaveDialog(parentStage);
         if (file != null) {
-            if (!file.getName().toLowerCase().endsWith(".jpop")) {
+            // Don't force .jpop extension if user selected .txt
+            if (file.getName().toLowerCase().endsWith(".jpop") ||
+                    !file.getName().contains(".")) {
                 file = new File(file.getAbsolutePath() + ".jpop");
             }
             writeFile(textArea, file);
@@ -76,12 +102,21 @@ public class FileManager {
     }
 
     private void writeFile(StyleClassedTextArea textArea, File file) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-            StyledDocument doc = tabManager.createStyledDocument();
-            doc.optimizeStyles();
-            oos.writeObject(doc);
-        } catch (IOException ex) {
-            showError("File Error", "Ошибка при сохранении файла: " + ex.getMessage());
+        if (file.getName().toLowerCase().endsWith(".jpop")) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+                StyledDocument doc = tabManager.createStyledDocument();
+                doc.optimizeStyles();
+                oos.writeObject(doc);
+            } catch (IOException ex) {
+                showError("File Error", "Ошибка при сохранении файла: " + ex.getMessage());
+            }
+        } else {
+            // Save as plain text
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(textArea.getText());
+            } catch (IOException ex) {
+                showError("File Error", "Ошибка при сохранении текстового файла: " + ex.getMessage());
+            }
         }
     }
 
