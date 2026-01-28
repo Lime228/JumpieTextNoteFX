@@ -349,3 +349,20 @@
     -fx-spacing: 0;
     -fx-padding: 0;
 }
+
+/* Status Bar */
+.status-bar {
+    -fx-background-color: #e8e8e3;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #d0d0cb;
+    -fx-padding: 5 10;
+}
+
+.status-bar .label {
+    -fx-text-fill: #555555;
+    -fx-font-size: 11px;
+}
+
+.status-bar .separator {
+    -fx-background-color: #d0d0cb;
+}

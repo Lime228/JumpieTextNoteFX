@@ -14,17 +14,19 @@ public class EditorMain extends Application implements TextAppender {
     private FileManager fileManager;
     private VoiceRecognitionService voiceService;
     private EditorMenuBar editorMenuBar;
-    private Stage primaryStage; // НОВОЕ
+    private WordCountPanel wordCountPanel; // НОВОЕ
+    private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            this.primaryStage = primaryStage; // НОВОЕ
+            this.primaryStage = primaryStage;
 
             tabManager = new TabManager();
             fileManager = new FileManager(primaryStage, tabManager);
             voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
             editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
+            wordCountPanel = new WordCountPanel(); // НОВОЕ
 
             BorderPane root = new BorderPane();
             HBox topContainer = new HBox();
@@ -39,6 +41,13 @@ public class EditorMain extends Application implements TextAppender {
 
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());
+            root.setBottom(wordCountPanel.getStatusBar()); // НОВОЕ
+
+            // НОВОЕ: Обновление статистики при изменении текста
+            tabManager.getTabPane().getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+                updateWordCount();
+                attachTextChangeListener();
+            });
 
             // Загружаем тему после создания сцены
             Scene scene = new Scene(root, 925, 600);
@@ -63,7 +72,21 @@ public class EditorMain extends Application implements TextAppender {
         }
     }
 
-    // НОВОЕ: геттер для Stage
+    // НОВОЕ: Прикрепление слушателя к текущей текстовой области
+    private void attachTextChangeListener() {
+        StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
+        if (textArea != null) {
+            textArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount());
+            textArea.selectionProperty().addListener((obs, oldSel, newSel) -> updateWordCount());
+        }
+    }
+
+    // НОВОЕ: Обновление подсчета слов
+    private void updateWordCount() {
+        StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
+        wordCountPanel.updateStats(textArea);
+    }
+
     public Stage getPrimaryStage() {
         return primaryStage;
     }
@@ -83,6 +106,7 @@ public class EditorMain extends Application implements TextAppender {
         if (currentTab != null && currentTab.getContent() instanceof ScrollPane scrollPane) {
             if (scrollPane.getContent() instanceof StyleClassedTextArea textArea) {
                 textArea.appendText(text);
+                updateWordCount(); // НОВОЕ: обновление после добавления текста
             }
         }
     }

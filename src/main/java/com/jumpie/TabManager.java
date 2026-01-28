@@ -55,6 +55,7 @@ public class TabManager {
         tabPane.getSelectionModel().select(tab);
     }
 
+
     public void closeCurrentTab() {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
         if (selectedTab != null) {
