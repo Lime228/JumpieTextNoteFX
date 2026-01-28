@@ -398,3 +398,6 @@
 .styled-text-area .line-number {
     -fx-background-color: #dbeafe;
 }
+.autosave-label {
+    -fx-font-weight: bold;
+}

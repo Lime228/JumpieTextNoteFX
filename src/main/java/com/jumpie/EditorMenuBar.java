@@ -209,6 +209,10 @@ public class EditorMenuBar {
         viewMenu.getItems().add(showLineNumbers);
         menuBar.getMenus().add(viewMenu);
 
+        // НОВОЕ: Меню автосохранения
+        Menu autoSaveMenu = createAutoSaveMenu(editorMain);
+        menuBar.getMenus().add(autoSaveMenu);
+
     }
 
     // НОВОЕ: показать диалог Find & Replace
@@ -218,6 +222,38 @@ public class EditorMenuBar {
         }
         findReplaceDialog.show();
     }
+
+    private Menu createAutoSaveMenu(EditorMain editorMain) {
+        Menu menu = new Menu("Автосохранение");
+
+        CheckMenuItem enableAutoSave = new CheckMenuItem("Включить автосохранение");
+        enableAutoSave.setSelected(true);
+        enableAutoSave.setOnAction(e -> {
+            editorMain.getAutoSaveManager().setAutoSaveEnabled(enableAutoSave.isSelected());
+        });
+
+        Menu intervalMenu = new Menu("Интервал");
+        ToggleGroup intervalGroup = new ToggleGroup();
+
+        int[] intervals = {30, 60, 120, 300, 600}; // 30с, 1м, 2м, 5м, 10м
+        String[] labels = {"30 секунд", "1 минута", "2 минуты", "5 минут", "10 минут"};
+
+        for (int i = 0; i < intervals.length; i++) {
+            int interval = intervals[i];
+            RadioMenuItem item = new RadioMenuItem(labels[i]);
+            item.setToggleGroup(intervalGroup);
+            if (interval == 60) item.setSelected(true);
+            item.setOnAction(e -> editorMain.getAutoSaveManager().setAutoSaveInterval(interval));
+            intervalMenu.getItems().add(item);
+        }
+
+        MenuItem forceSave = new MenuItem("Сохранить сейчас");
+        forceSave.setOnAction(e -> editorMain.getAutoSaveManager().forceSave());
+
+        menu.getItems().addAll(enableAutoSave, intervalMenu, new SeparatorMenuItem(), forceSave);
+        return menu;
+    }
+
 
     private void updateStyleButtons(TabManager tabManager) {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();

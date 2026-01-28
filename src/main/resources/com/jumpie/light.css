@@ -381,3 +381,6 @@
 .styled-text-area .line-number {
     -fx-background-color: #f0f0eb;
 }
+.autosave-label {
+    -fx-font-weight: bold;
+}

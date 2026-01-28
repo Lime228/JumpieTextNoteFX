@@ -14,7 +14,8 @@ public class EditorMain extends Application implements TextAppender {
     private FileManager fileManager;
     private VoiceRecognitionService voiceService;
     private EditorMenuBar editorMenuBar;
-    private WordCountPanel wordCountPanel; // НОВОЕ
+    private WordCountPanel wordCountPanel;
+    private AutoSaveManager autoSaveManager; // НОВОЕ
     private Stage primaryStage;
 
     @Override
@@ -26,7 +27,13 @@ public class EditorMain extends Application implements TextAppender {
             fileManager = new FileManager(primaryStage, tabManager);
             voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
             editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
-            wordCountPanel = new WordCountPanel(); // НОВОЕ
+            wordCountPanel = new WordCountPanel();
+
+            // НОВОЕ: Инициализация автосохранения
+            autoSaveManager = new AutoSaveManager(tabManager, fileManager);
+            autoSaveManager.setListener((success, message) -> {
+                wordCountPanel.updateAutoSaveStatus(message);
+            });
 
             BorderPane root = new BorderPane();
             HBox topContainer = new HBox();
@@ -41,9 +48,9 @@ public class EditorMain extends Application implements TextAppender {
 
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());
-            root.setBottom(wordCountPanel.getStatusBar()); // НОВОЕ
+            root.setBottom(wordCountPanel.getStatusBar());
 
-            // НОВОЕ: Обновление статистики при изменении текста
+            // Обновление статистики при изменении текста
             tabManager.getTabPane().getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
                 updateWordCount();
                 attachTextChangeListener();
@@ -62,6 +69,7 @@ public class EditorMain extends Application implements TextAppender {
             primaryStage.show();
 
             primaryStage.setOnCloseRequest(e -> {
+                autoSaveManager.stop(); // НОВОЕ
                 voiceService.dispose();
                 primaryStage.close();
             });
@@ -72,7 +80,6 @@ public class EditorMain extends Application implements TextAppender {
         }
     }
 
-    // НОВОЕ: Прикрепление слушателя к текущей текстовой области
     private void attachTextChangeListener() {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         if (textArea != null) {
@@ -81,10 +88,14 @@ public class EditorMain extends Application implements TextAppender {
         }
     }
 
-    // НОВОЕ: Обновление подсчета слов
     private void updateWordCount() {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         wordCountPanel.updateStats(textArea);
+    }
+
+    // НОВОЕ: Геттер для AutoSaveManager
+    public AutoSaveManager getAutoSaveManager() {
+        return autoSaveManager;
     }
 
     public Stage getPrimaryStage() {
@@ -106,7 +117,7 @@ public class EditorMain extends Application implements TextAppender {
         if (currentTab != null && currentTab.getContent() instanceof ScrollPane scrollPane) {
             if (scrollPane.getContent() instanceof StyleClassedTextArea textArea) {
                 textArea.appendText(text);
-                updateWordCount(); // НОВОЕ: обновление после добавления текста
+                updateWordCount();
             }
         }
     }

@@ -65,6 +65,11 @@ public class FileManager {
         }
     }
 
+    public void saveFileDirectly(StyleClassedTextArea textArea, File file) {
+        if (textArea == null || file == null) return;
+        writeFile(textArea, file);
+    }
+
     public void saveFile(boolean saveAs) {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         if (textArea == null) return;

@@ -16,12 +16,17 @@ public class WordCountPanel {
     private final Label wordCountLabel;
     private final Label lineCountLabel;
     private final Label selectionLabel;
+    private final Label autoSaveLabel; // НОВОЕ
 
     public WordCountPanel() {
         statusBar = new HBox(10);
         statusBar.getStyleClass().add("status-bar");
         statusBar.setPadding(new Insets(5, 10, 5, 10));
         statusBar.setAlignment(Pos.CENTER_LEFT);
+
+        // НОВОЕ: Индикатор автосохранения слева
+        autoSaveLabel = createStatusLabel("Автосохранение: включено");
+        autoSaveLabel.getStyleClass().add("autosave-label");
 
         // Spacer для выравнивания элементов вправо
         Region spacer = new Region();
@@ -35,12 +40,14 @@ public class WordCountPanel {
         selectionLabel = createStatusLabel("");
 
         // Разделители
+        Separator sepAuto = createVerticalSeparator();
         Separator sep1 = createVerticalSeparator();
         Separator sep2 = createVerticalSeparator();
         Separator sep3 = createVerticalSeparator();
         Separator sep4 = createVerticalSeparator();
 
         statusBar.getChildren().addAll(
+                autoSaveLabel, sepAuto, // НОВОЕ
                 spacer,
                 lineCountLabel, sep1,
                 wordCountLabel, sep2,
@@ -64,6 +71,11 @@ public class WordCountPanel {
 
     public HBox getStatusBar() {
         return statusBar;
+    }
+
+    // НОВОЕ: Обновление статуса автосохранения
+    public void updateAutoSaveStatus(String status) {
+        autoSaveLabel.setText(status);
     }
 
     public void updateStats(StyleClassedTextArea textArea) {
@@ -117,8 +129,6 @@ public class WordCountPanel {
 
     private int countWords(String text) {
         if (text.trim().isEmpty()) return 0;
-
-        // Разделяем по пробельным символам и подсчитываем непустые элементы
         String[] words = text.trim().split("\\s+");
         return words.length;
     }
