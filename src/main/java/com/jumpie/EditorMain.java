@@ -15,7 +15,8 @@ public class EditorMain extends Application implements TextAppender {
     private VoiceRecognitionService voiceService;
     private EditorMenuBar editorMenuBar;
     private WordCountPanel wordCountPanel;
-    private AutoSaveManager autoSaveManager; // НОВОЕ
+    private AutoSaveManager autoSaveManager;
+    private ExportManager exportManager; // НОВОЕ
     private Stage primaryStage;
 
     @Override
@@ -26,14 +27,19 @@ public class EditorMain extends Application implements TextAppender {
             tabManager = new TabManager();
             fileManager = new FileManager(primaryStage, tabManager);
             voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
-            editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
             wordCountPanel = new WordCountPanel();
 
-            // НОВОЕ: Инициализация автосохранения
+            // Инициализация автосохранения
             autoSaveManager = new AutoSaveManager(tabManager, fileManager);
             autoSaveManager.setListener((success, message) -> {
                 wordCountPanel.updateAutoSaveStatus(message);
             });
+
+            // НОВОЕ: Инициализация экспорта
+            exportManager = new ExportManager(primaryStage, tabManager);
+
+            // Создаем меню после инициализации всех менеджеров
+            editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
 
             BorderPane root = new BorderPane();
             HBox topContainer = new HBox();
@@ -69,7 +75,7 @@ public class EditorMain extends Application implements TextAppender {
             primaryStage.show();
 
             primaryStage.setOnCloseRequest(e -> {
-                autoSaveManager.stop(); // НОВОЕ
+                autoSaveManager.stop();
                 voiceService.dispose();
                 primaryStage.close();
             });
@@ -93,9 +99,14 @@ public class EditorMain extends Application implements TextAppender {
         wordCountPanel.updateStats(textArea);
     }
 
-    // НОВОЕ: Геттер для AutoSaveManager
+    // Геттер для AutoSaveManager
     public AutoSaveManager getAutoSaveManager() {
         return autoSaveManager;
+    }
+
+    // НОВОЕ: Геттер для ExportManager
+    public ExportManager getExportManager() {
+        return exportManager;
     }
 
     public Stage getPrimaryStage() {

@@ -23,23 +23,21 @@ public class EditorMenuBar {
     private final ToggleButton italicBtn;
     private final ToggleButton underlineBtn;
     private final ToggleButton strikethroughBtn;
-    private FindReplaceDialog findReplaceDialog; // НОВОЕ
+    private FindReplaceDialog findReplaceDialog;
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
         menuBar = new MenuBar();
         menuBar.getStyleClass().add("menu-bar");
 
-        
-        Menu fileMenu = createFileMenu(fileManager);
-
-
-        // Создание меню Edit
-        Menu editMenu = createMenu("Редактировать", "Отменить", "Повторить", "Вырезать", "Копировать", "Вставить", "Найти и Заменить"); // ИЗМЕНЕНО
-
+        // Создание меню
+        Menu fileMenu = createFileMenu(fileManager, tabManager);
+        Menu editMenu = createEditMenu(editorMain, tabManager);
+        Menu exportMenu = createExportMenu(editorMain);
+        Menu autoSaveMenu = createAutoSaveMenu(editorMain);
         Menu themeMenu = createThemeMenu();
 
-        menuBar.getMenus().addAll(fileMenu, editMenu, themeMenu);
+        menuBar.getMenus().addAll(fileMenu, editMenu, exportMenu, autoSaveMenu, themeMenu);
 
         // Панель инструментов
         toolBar = new HBox(5);
@@ -63,27 +61,20 @@ public class EditorMenuBar {
         underlineBtn = createStyleToggleButton(FontAwesomeIcon.UNDERLINE, "button-underline");
         strikethroughBtn = createStyleToggleButton(FontAwesomeIcon.STRIKETHROUGH, "button-strikethrough");
 
+
         toolBar.getChildren().addAll(
                 voiceButton,
                 createLabel("Шрифт:"), fontCombo,
                 createLabel("Размер:"), sizeCombo,
-                boldBtn, italicBtn, underlineBtn, strikethroughBtn
+                boldBtn, italicBtn, underlineBtn, strikethroughBtn,
+                createSeparator()
         );
 
         // Настройка обработчиков событий
         setupEventHandlers(editorMain, fileManager, tabManager, voiceService);
     }
 
-    private Menu createMenu(String title, String... items) {
-        Menu menu = new Menu(title);
-        for (String item : items) {
-            MenuItem menuItem = new MenuItem(item);
-            menu.getItems().add(menuItem);
-        }
-        return menu;
-    }
-
-    private Menu createFileMenu(FileManager fileManager) {
+    private Menu createFileMenu(FileManager fileManager, TabManager tabManager) {
         Menu menu = new Menu("Файл");
 
         MenuItem newTab = new MenuItem("Новая вкладка");
@@ -92,33 +83,120 @@ public class EditorMenuBar {
         MenuItem saveAs = new MenuItem("Сохранить как");
         MenuItem closeTab = new MenuItem("Закрыть вкладку");
 
+        // Обработчики
+        newTab.setOnAction(e -> tabManager.addNewTab());
+        open.setOnAction(e -> fileManager.openFile());
+        save.setOnAction(e -> fileManager.saveFile(false));
+        saveAs.setOnAction(e -> fileManager.saveFile(true));
+        closeTab.setOnAction(e -> tabManager.closeCurrentTab());
+
         menu.getItems().addAll(newTab, open, save, saveAs, new SeparatorMenuItem(), closeTab);
 
-        // НОВОЕ: Меню недавних файлов
+        // Меню недавних файлов
         Menu recentMenu = new Menu("Недавние файлы");
         recentMenu.setDisable(true);
 
-        // Обновляем меню недавних файлов
         updateRecentFilesMenu(recentMenu, fileManager);
 
-        // Слушатель изменений недавних файлов
         fileManager.getRecentFilesManager().addListener(() -> {
             javafx.application.Platform.runLater(() -> updateRecentFilesMenu(recentMenu, fileManager));
         });
 
-        menu.getItems().add(5, recentMenu); // Добавляем после "Закрыть вкладку"
+        menu.getItems().add(recentMenu);
 
-        // НОВОЕ: Очистить недавние файлы
+        // Очистить недавние файлы
         MenuItem clearRecent = new MenuItem("Очистить недавние файлы");
-        clearRecent.setOnAction(e -> {
-            fileManager.getRecentFilesManager().clearRecentFiles();
-        });
-        menu.getItems().add(6, clearRecent);
+        clearRecent.setOnAction(e -> fileManager.getRecentFilesManager().clearRecentFiles());
+        menu.getItems().add(clearRecent);
 
         return menu;
     }
 
-    // НОВОЕ: Обновление меню недавних файлов
+    private Menu createEditMenu(EditorMain editorMain, TabManager tabManager) {
+        Menu menu = new Menu("Редактировать");
+
+        MenuItem undo = new MenuItem("Отменить");
+        MenuItem redo = new MenuItem("Повторить");
+        MenuItem cut = new MenuItem("Вырезать");
+        MenuItem copy = new MenuItem("Копировать");
+        MenuItem paste = new MenuItem("Вставить");
+        MenuItem findReplace = new MenuItem("Найти и Заменить");
+
+        // Обработчики
+        undo.setOnAction(e -> tabManager.undo());
+        redo.setOnAction(e -> tabManager.redo());
+        cut.setOnAction(e -> tabManager.cut());
+        copy.setOnAction(e -> tabManager.copy());
+        paste.setOnAction(e -> tabManager.paste());
+        findReplace.setOnAction(e -> showFindReplace(editorMain, tabManager));
+
+        menu.getItems().addAll(undo, redo, new SeparatorMenuItem(), cut, copy, paste, new SeparatorMenuItem(), findReplace);
+        return menu;
+    }
+
+    private Menu createExportMenu(EditorMain editorMain) {
+        Menu menu = new Menu("Экспорт");
+
+        MenuItem exportHTML = new MenuItem("Экспорт в HTML");
+        MenuItem exportMarkdown = new MenuItem("Экспорт в Markdown");
+
+        exportHTML.setOnAction(e -> editorMain.getExportManager().exportToHTML());
+        exportMarkdown.setOnAction(e -> editorMain.getExportManager().exportToMarkdown());
+
+        menu.getItems().addAll(exportHTML, exportMarkdown);
+        return menu;
+    }
+
+    private Menu createAutoSaveMenu(EditorMain editorMain) {
+        Menu menu = new Menu("Автосохранение");
+
+        CheckMenuItem enableAutoSave = new CheckMenuItem("Включить автосохранение");
+        enableAutoSave.setSelected(true);
+        enableAutoSave.setOnAction(e -> {
+            editorMain.getAutoSaveManager().setAutoSaveEnabled(enableAutoSave.isSelected());
+        });
+
+        Menu intervalMenu = new Menu("Интервал");
+        ToggleGroup intervalGroup = new ToggleGroup();
+
+        int[] intervals = {30, 60, 120, 300, 600};
+        String[] labels = {"30 секунд", "1 минута", "2 минуты", "5 минут", "10 минут"};
+
+        for (int i = 0; i < intervals.length; i++) {
+            int interval = intervals[i];
+            RadioMenuItem item = new RadioMenuItem(labels[i]);
+            item.setToggleGroup(intervalGroup);
+            if (interval == 60) item.setSelected(true);
+            item.setOnAction(e -> editorMain.getAutoSaveManager().setAutoSaveInterval(interval));
+            intervalMenu.getItems().add(item);
+        }
+
+        MenuItem forceSave = new MenuItem("Сохранить сейчас");
+        forceSave.setOnAction(e -> editorMain.getAutoSaveManager().forceSave());
+
+        menu.getItems().addAll(enableAutoSave, intervalMenu, new SeparatorMenuItem(), forceSave);
+        return menu;
+    }
+
+    private Menu createThemeMenu() {
+        Menu themeMenu = new Menu("Тема");
+        ToggleGroup themeGroup = new ToggleGroup();
+
+        for (Theme theme : Theme.values()) {
+            RadioMenuItem themeItem = new RadioMenuItem(theme.getName());
+            themeItem.setToggleGroup(themeGroup);
+            themeItem.setOnAction(e -> {
+                Scene scene = menuBar.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().removeIf(url -> url.contains("/com/jumpie/"));
+                    scene.getStylesheets().add(getClass().getResource(theme.getCssPath()).toExternalForm());
+                }
+            });
+            themeMenu.getItems().add(themeItem);
+        }
+        return themeMenu;
+    }
+
     private void updateRecentFilesMenu(Menu recentMenu, FileManager fileManager) {
         recentMenu.getItems().clear();
 
@@ -135,7 +213,6 @@ public class EditorMenuBar {
             for (int i = 0; i < recentFiles.size(); i++) {
                 File file = recentFiles.get(i);
                 String displayName = (i + 1) + ". " + file.getName();
-                String fullPath = file.getAbsolutePath();
 
                 MenuItem item = new MenuItem(displayName);
                 item.setOnAction(e -> fileManager.openFile(file));
@@ -143,15 +220,6 @@ public class EditorMenuBar {
                 recentMenu.getItems().add(item);
             }
         }
-    }
-
-
-    private Button createToolButton() {
-        Button button = new Button("Запись");
-        button.setTooltip(new Tooltip("Запустить/Остановить голосовой ввод"));
-        button.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(button, Priority.ALWAYS);
-        return button;
     }
 
     private ComboBox<String> createFontComboBox() {
@@ -183,51 +251,31 @@ public class EditorMenuBar {
         return button;
     }
 
-    private Menu createThemeMenu() {
-        Menu themeMenu = new Menu("Тема");
-        ToggleGroup themeGroup = new ToggleGroup();
-
-        for (Theme theme : Theme.values()) {
-            RadioMenuItem themeItem = new RadioMenuItem(theme.getName());
-            themeItem.setToggleGroup(themeGroup);
-            themeItem.setOnAction(e -> {
-                Scene scene = menuBar.getScene();
-                if (scene != null) {
-                    scene.getStylesheets().removeIf(url ->
-                            url.contains("/com/jumpie/"));
-                    scene.getStylesheets().add(
-                            getClass().getResource(theme.getCssPath()).toExternalForm());
-                }
-            });
-            themeMenu.getItems().add(themeItem);
-        }
-        return themeMenu;
-    }
-
     private Label createLabel(String text) {
         Label label = new Label(text);
         label.setStyle(".label");
         return label;
     }
 
+    private Separator createSeparator() {
+        Separator separator = new Separator();
+        separator.setOrientation(javafx.geometry.Orientation.VERTICAL);
+        separator.setPadding(new javafx.geometry.Insets(0, 5, 0, 5));
+        return separator;
+    }
+
+    private Button createRecordButton() {
+        Button button = new Button("Запись");
+        button.setTooltip(new Tooltip("Запустить/Остановить голосовой ввод"));
+        button.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(button, Priority.ALWAYS);
+        button.getStyleClass().add("record-button");
+        return button;
+    }
+
     private void setupEventHandlers(EditorMain editorMain, FileManager fileManager,
                                     TabManager tabManager, VoiceRecognitionService voiceService) {
-        // Обработчики для меню File
-        menuBar.getMenus().getFirst().getItems().get(0).setOnAction(e -> tabManager.addNewTab());
-        menuBar.getMenus().getFirst().getItems().get(1).setOnAction(e -> fileManager.openFile());
-        menuBar.getMenus().getFirst().getItems().get(2).setOnAction(e -> fileManager.saveFile(false));
-        menuBar.getMenus().getFirst().getItems().get(3).setOnAction(e -> fileManager.saveFile(true));
-        menuBar.getMenus().get(0).getItems().get(4).setOnAction(e -> tabManager.closeCurrentTab());
-
-        // Обработчики для меню Edit
-        menuBar.getMenus().get(1).getItems().get(0).setOnAction(e -> tabManager.undo());
-        menuBar.getMenus().get(1).getItems().get(1).setOnAction(e -> tabManager.redo());
-        menuBar.getMenus().get(1).getItems().get(2).setOnAction(e -> tabManager.cut());
-        menuBar.getMenus().get(1).getItems().get(3).setOnAction(e -> tabManager.copy());
-        menuBar.getMenus().get(1).getItems().get(4).setOnAction(e -> tabManager.paste());
-
-        // НОВОЕ: Find & Replace
-        menuBar.getMenus().get(1).getItems().get(5).setOnAction(e -> showFindReplace(editorMain, tabManager));
+        // Обработчики уже установлены в методах создания меню
 
         voiceButton.setOnAction(e -> voiceService.toggleRecognition(editorMain));
 
@@ -267,59 +315,14 @@ public class EditorMenuBar {
             updateStyleButtons(tabManager);
         });
 
-        // В setupEventHandlers или в конструкторе
-        Menu viewMenu = new Menu("Вид");
-        CheckMenuItem showLineNumbers = new CheckMenuItem("Показать нумерацию строк");
-        showLineNumbers.setSelected(true);
-        showLineNumbers.setOnAction(e -> tabManager.toggleLineNumbers(showLineNumbers.isSelected()));
-        viewMenu.getItems().add(showLineNumbers);
-        menuBar.getMenus().add(viewMenu);
-
-        // НОВОЕ: Меню автосохранения
-        Menu autoSaveMenu = createAutoSaveMenu(editorMain);
-        menuBar.getMenus().add(autoSaveMenu);
-
     }
 
-    // НОВОЕ: показать диалог Find & Replace
     private void showFindReplace(EditorMain editorMain, TabManager tabManager) {
         if (findReplaceDialog == null) {
             findReplaceDialog = new FindReplaceDialog(editorMain.getPrimaryStage(), tabManager);
         }
         findReplaceDialog.show();
     }
-
-    private Menu createAutoSaveMenu(EditorMain editorMain) {
-        Menu menu = new Menu("Автосохранение");
-
-        CheckMenuItem enableAutoSave = new CheckMenuItem("Включить автосохранение");
-        enableAutoSave.setSelected(true);
-        enableAutoSave.setOnAction(e -> {
-            editorMain.getAutoSaveManager().setAutoSaveEnabled(enableAutoSave.isSelected());
-        });
-
-        Menu intervalMenu = new Menu("Интервал");
-        ToggleGroup intervalGroup = new ToggleGroup();
-
-        int[] intervals = {30, 60, 120, 300, 600}; // 30с, 1м, 2м, 5м, 10м
-        String[] labels = {"30 секунд", "1 минута", "2 минуты", "5 минут", "10 минут"};
-
-        for (int i = 0; i < intervals.length; i++) {
-            int interval = intervals[i];
-            RadioMenuItem item = new RadioMenuItem(labels[i]);
-            item.setToggleGroup(intervalGroup);
-            if (interval == 60) item.setSelected(true);
-            item.setOnAction(e -> editorMain.getAutoSaveManager().setAutoSaveInterval(interval));
-            intervalMenu.getItems().add(item);
-        }
-
-        MenuItem forceSave = new MenuItem("Сохранить сейчас");
-        forceSave.setOnAction(e -> editorMain.getAutoSaveManager().forceSave());
-
-        menu.getItems().addAll(enableAutoSave, intervalMenu, new SeparatorMenuItem(), forceSave);
-        return menu;
-    }
-
 
     private void updateStyleButtons(TabManager tabManager) {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
@@ -351,12 +354,6 @@ public class EditorMenuBar {
 
     public HBox getToolBar() {
         return toolBar;
-    }
-
-    private Button createRecordButton() {
-        Button button = createToolButton();
-        button.getStyleClass().add("record-button");
-        return button;
     }
 
     public void updateVoiceButtonState(boolean isListening) {
