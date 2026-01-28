@@ -9,6 +9,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
+import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 public class EditorMenuBar {
@@ -28,8 +30,9 @@ public class EditorMenuBar {
         menuBar = new MenuBar();
         menuBar.getStyleClass().add("menu-bar");
 
-        // Создание меню File
-        Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Закрыть вкладку");
+        
+        Menu fileMenu = createFileMenu(fileManager);
+
 
         // Создание меню Edit
         Menu editMenu = createMenu("Редактировать", "Отменить", "Повторить", "Вырезать", "Копировать", "Вставить", "Найти и Заменить"); // ИЗМЕНЕНО
@@ -79,6 +82,69 @@ public class EditorMenuBar {
         }
         return menu;
     }
+
+    private Menu createFileMenu(FileManager fileManager) {
+        Menu menu = new Menu("Файл");
+
+        MenuItem newTab = new MenuItem("Новая вкладка");
+        MenuItem open = new MenuItem("Открыть");
+        MenuItem save = new MenuItem("Сохранить");
+        MenuItem saveAs = new MenuItem("Сохранить как");
+        MenuItem closeTab = new MenuItem("Закрыть вкладку");
+
+        menu.getItems().addAll(newTab, open, save, saveAs, new SeparatorMenuItem(), closeTab);
+
+        // НОВОЕ: Меню недавних файлов
+        Menu recentMenu = new Menu("Недавние файлы");
+        recentMenu.setDisable(true);
+
+        // Обновляем меню недавних файлов
+        updateRecentFilesMenu(recentMenu, fileManager);
+
+        // Слушатель изменений недавних файлов
+        fileManager.getRecentFilesManager().addListener(() -> {
+            javafx.application.Platform.runLater(() -> updateRecentFilesMenu(recentMenu, fileManager));
+        });
+
+        menu.getItems().add(5, recentMenu); // Добавляем после "Закрыть вкладку"
+
+        // НОВОЕ: Очистить недавние файлы
+        MenuItem clearRecent = new MenuItem("Очистить недавние файлы");
+        clearRecent.setOnAction(e -> {
+            fileManager.getRecentFilesManager().clearRecentFiles();
+        });
+        menu.getItems().add(6, clearRecent);
+
+        return menu;
+    }
+
+    // НОВОЕ: Обновление меню недавних файлов
+    private void updateRecentFilesMenu(Menu recentMenu, FileManager fileManager) {
+        recentMenu.getItems().clear();
+
+        List<File> recentFiles = fileManager.getRecentFilesManager().getRecentFiles();
+
+        if (recentFiles.isEmpty()) {
+            recentMenu.setDisable(true);
+            MenuItem noFiles = new MenuItem("Нет недавних файлов");
+            noFiles.setDisable(true);
+            recentMenu.getItems().add(noFiles);
+        } else {
+            recentMenu.setDisable(false);
+
+            for (int i = 0; i < recentFiles.size(); i++) {
+                File file = recentFiles.get(i);
+                String displayName = (i + 1) + ". " + file.getName();
+                String fullPath = file.getAbsolutePath();
+
+                MenuItem item = new MenuItem(displayName);
+                item.setOnAction(e -> fileManager.openFile(file));
+
+                recentMenu.getItems().add(item);
+            }
+        }
+    }
+
 
     private Button createToolButton() {
         Button button = new Button("Запись");

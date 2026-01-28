@@ -13,10 +13,17 @@ import java.util.Set;
 public class FileManager {
     private final TabManager tabManager;
     private final Stage parentStage;
+    private final RecentFilesManager recentFilesManager; // НОВОЕ
 
     public FileManager(Stage stage, TabManager tabManager) {
         this.parentStage = stage;
         this.tabManager = tabManager;
+        this.recentFilesManager = new RecentFilesManager(); // НОВОЕ
+    }
+
+    // НОВОЕ: Геттер для RecentFilesManager
+    public RecentFilesManager getRecentFilesManager() {
+        return recentFilesManager;
     }
 
     public void openFile() {
@@ -26,9 +33,18 @@ public class FileManager {
                 new FileChooser.ExtensionFilter("Text Files", "*.txt"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
-
         File file = fileChooser.showOpenDialog(parentStage);
         if (file == null) return;
+
+        openFile(file); // ИЗМЕНЕНО: вызываем новый метод
+    }
+
+    // НОВОЕ: Метод для открытия конкретного файла
+    public void openFile(File file) {
+        if (file == null || !file.exists()) {
+            showError("File Error", "Файл не существует: " + (file != null ? file.getName() : "null"));
+            return;
+        }
 
         tabManager.addNewTab();
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
@@ -38,13 +54,12 @@ public class FileManager {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 StyledDocument doc = (StyledDocument) ois.readObject();
                 textArea.replaceText(doc.getText());
-
                 for (TextStyle style : doc.getStyles()) {
                     applyStyleToTextArea(textArea, style);
                 }
-
                 tabManager.getCurrentTab().setUserData(file);
                 tabManager.updateTabTitle(file.getName());
+                recentFilesManager.addRecentFile(file); // НОВОЕ
             } catch (Exception ex) {
                 showError("File Error", "Ошибка при открытии файла: " + ex.getMessage());
             }
@@ -59,15 +74,11 @@ public class FileManager {
                 textArea.replaceText(content.toString());
                 tabManager.getCurrentTab().setUserData(file);
                 tabManager.updateTabTitle(file.getName());
+                recentFilesManager.addRecentFile(file); // НОВОЕ
             } catch (Exception ex) {
                 showError("File Error", "Ошибка при открытии текстового файла: " + ex.getMessage());
             }
         }
-    }
-
-    public void saveFileDirectly(StyleClassedTextArea textArea, File file) {
-        if (textArea == null || file == null) return;
-        writeFile(textArea, file);
     }
 
     public void saveFile(boolean saveAs) {
@@ -75,8 +86,10 @@ public class FileManager {
         if (textArea == null) return;
 
         File currentFile = (File) tabManager.getCurrentTab().getUserData();
+
         if (!saveAs && currentFile != null) {
             writeFile(textArea, currentFile);
+            recentFilesManager.addRecentFile(currentFile); // НОВОЕ
             return;
         }
 
@@ -100,10 +113,18 @@ public class FileManager {
                     !file.getName().contains(".")) {
                 file = new File(file.getAbsolutePath() + ".jpop");
             }
+
             writeFile(textArea, file);
             tabManager.getCurrentTab().setUserData(file);
             tabManager.updateTabTitle(file.getName());
+            recentFilesManager.addRecentFile(file); // НОВОЕ
         }
+    }
+
+    // НОВОЕ: Метод для автосохранения (без диалога)
+    public void saveFileDirectly(StyleClassedTextArea textArea, File file) {
+        if (textArea == null || file == null) return;
+        writeFile(textArea, file);
     }
 
     private void writeFile(StyleClassedTextArea textArea, File file) {
@@ -127,15 +148,12 @@ public class FileManager {
 
     private void applyStyleToTextArea(StyleClassedTextArea textArea, TextStyle style) {
         Set<String> styles = new HashSet<>();
-
         if (style.isBold()) styles.add("text-bold");
         if (style.isItalic()) styles.add("text-italic");
         if (style.isUnderline()) styles.add("text-underline");
         if (style.isStrikethrough()) styles.add("text-strikethrough");
-
         styles.add("font-family:" + style.getFontFamily());
         styles.add("size-" + style.getFontSize());
-
         textArea.setStyle(style.getStart(), style.getEnd() + 1, styles);
     }
 
