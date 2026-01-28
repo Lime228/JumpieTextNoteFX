@@ -28,7 +28,7 @@ public class EditorMenuBar {
         menuBar.getStyleClass().add("menu-bar");
 
         // Создание меню File
-        Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Распечатать", "Закрыть вкладку");
+        Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Закрыть вкладку");
         // Создание меню Edit
         Menu editMenu = createMenu("Редактировать", "Вырезать", "Копировать", "Вставить");
 
@@ -151,8 +151,7 @@ public class EditorMenuBar {
         menuBar.getMenus().getFirst().getItems().get(1).setOnAction(e -> fileManager.openFile());
         menuBar.getMenus().getFirst().getItems().get(2).setOnAction(e -> fileManager.saveFile(false));
         menuBar.getMenus().getFirst().getItems().get(3).setOnAction(e -> fileManager.saveFile(true));
-        menuBar.getMenus().get(0).getItems().get(4).setOnAction(e -> tabManager.print());
-        menuBar.getMenus().get(0).getItems().get(5).setOnAction(e -> tabManager.closeCurrentTab());
+        menuBar.getMenus().get(0).getItems().get(4).setOnAction(e -> tabManager.closeCurrentTab());
 
         // Обработчики для меню Edit
         menuBar.getMenus().get(1).getItems().get(0).setOnAction(e -> tabManager.cut());

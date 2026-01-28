@@ -134,12 +134,8 @@ public class FileManager {
         textArea.setStyle(style.getStart(), style.getEnd() + 1, styles);
     }
 
-    private void showError(String title, String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    public void showError(String title, String message) {
+        EditorMain.showError(parentStage, title, message);
     }
 
     public void savePreferences(Theme currentTheme) {

@@ -64,7 +64,7 @@ public class EditorMain extends Application implements TextAppender {
         }
     }
 
-    private void showError(Stage owner, String title, String message) {
+    public static void showError(Stage owner, String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.initOwner(owner);
         alert.setTitle(title);

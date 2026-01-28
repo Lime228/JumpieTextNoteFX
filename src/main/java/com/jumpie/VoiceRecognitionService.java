@@ -1,6 +1,5 @@
 package com.jumpie;
 
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.vosk.*;
 
@@ -164,13 +163,7 @@ public class VoiceRecognitionService {
     }
 
     private void showError(String message) {
-        javafx.application.Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        EditorMain.showError(parentStage, "Error", message);
     }
 
     private void notifyStateChanged() {
@@ -191,6 +184,7 @@ public class VoiceRecognitionService {
         stopRecognition();
         if (recognizer != null) {
             recognizer.close();
+            recognizer.reset();
         }
     }
 }

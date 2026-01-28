@@ -7,6 +7,8 @@ import javafx.scene.input.*;
 import java.util.*;
 
 public class TabManager {
+    private static final String UNTITLED_PREFIX = "Новая Записка";
+
     private final TabPane tabPane;
 
     public TabManager() {
@@ -41,7 +43,7 @@ public class TabManager {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        Tab tab = new Tab("Новая Записка", scrollPane);
+        Tab tab = new Tab(UNTITLED_PREFIX, scrollPane);
         tab.setClosable(true);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
@@ -75,16 +77,6 @@ public class TabManager {
         }
     }
 
-    public void updateTextColor() {
-        StyleClassedTextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            // Принудительно обновляем стиль текста
-            String text = textArea.getText();
-            textArea.replaceText(text);
-        }
-    }
-
-
     public void cut() {
         StyleClassedTextArea textArea = getCurrentTextArea();
         if (textArea != null) {
@@ -113,13 +105,6 @@ public class TabManager {
             if (clipboard.hasString()) {
                 textArea.replaceSelection(clipboard.getString());
             }
-        }
-    }
-
-    public void print() {
-        StyleClassedTextArea textArea = getCurrentTextArea();
-        if (textArea != null) {
-            System.out.println("Printing: " + textArea.getText());
         }
     }
 
