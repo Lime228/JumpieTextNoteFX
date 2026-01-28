@@ -45,6 +45,9 @@ public class TabManager {
         textArea.setWrapText(true);
         textArea.setStyle("-fx-font-family: Consolas; -fx-font-size: 14px;");
 
+        // НОВОЕ: Добавление нумерации строк
+        textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
+
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -54,6 +57,7 @@ public class TabManager {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
+
 
 
     public void closeCurrentTab() {
@@ -83,6 +87,18 @@ public class TabManager {
             currentTab.setText(title);
         }
     }
+
+    public void toggleLineNumbers(boolean show) {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null) {
+            if (show) {
+                textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
+            } else {
+                textArea.setParagraphGraphicFactory(null);
+            }
+        }
+    }
+
 
     public void undo() {
         StyleClassedTextArea textArea = getCurrentTextArea();

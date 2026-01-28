@@ -8,6 +8,7 @@ module com.jumpie.jumpietextnotefx {
     requires java.desktop;
     requires org.fxmisc.richtext;
     requires de.jensd.fx.glyphs.fontawesome;
+    requires reactfx;
 
     opens com.jumpie to javafx.fxml;
     exports com.jumpie;

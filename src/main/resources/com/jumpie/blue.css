@@ -383,3 +383,18 @@
 .status-bar .separator {
     -fx-background-color: #2563eb;
 }
+/* Line Numbers */
+.line-number {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #64748b;
+    -fx-font-family: "Consolas", "Monaco", monospace;
+    -fx-font-size: 11px;
+    -fx-padding: 0 10 0 5;
+    -fx-alignment: center-right;
+    -fx-border-color: transparent #2563eb transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.styled-text-area .line-number {
+    -fx-background-color: #dbeafe;
+}

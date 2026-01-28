@@ -200,6 +200,15 @@ public class EditorMenuBar {
             tabManager.toggleSelectionStrikethrough();
             updateStyleButtons(tabManager);
         });
+
+        // В setupEventHandlers или в конструкторе
+        Menu viewMenu = new Menu("Вид");
+        CheckMenuItem showLineNumbers = new CheckMenuItem("Показать нумерацию строк");
+        showLineNumbers.setSelected(true);
+        showLineNumbers.setOnAction(e -> tabManager.toggleLineNumbers(showLineNumbers.isSelected()));
+        viewMenu.getItems().add(showLineNumbers);
+        menuBar.getMenus().add(viewMenu);
+
     }
 
     // НОВОЕ: показать диалог Find & Replace
