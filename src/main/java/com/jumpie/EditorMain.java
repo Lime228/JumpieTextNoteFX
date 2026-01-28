@@ -14,30 +14,31 @@ public class EditorMain extends Application implements TextAppender {
     private FileManager fileManager;
     private VoiceRecognitionService voiceService;
     private EditorMenuBar editorMenuBar;
+    private Stage primaryStage; // НОВОЕ
 
     @Override
     public void start(Stage primaryStage) {
         try {
+            this.primaryStage = primaryStage; // НОВОЕ
+
             tabManager = new TabManager();
             fileManager = new FileManager(primaryStage, tabManager);
             voiceService = new VoiceRecognitionService(primaryStage, "voicemodels/voskSmallRu0.22");
-
             editorMenuBar = new EditorMenuBar(this, fileManager, tabManager, voiceService);
 
             BorderPane root = new BorderPane();
-
             HBox topContainer = new HBox();
             topContainer.getStyleClass().add("top-container");
             topContainer.getChildren().addAll(
                     editorMenuBar.getMenuBar(),
                     editorMenuBar.getToolBar()
             );
+
             HBox.setHgrow(editorMenuBar.getMenuBar(), Priority.ALWAYS);
             HBox.setHgrow(editorMenuBar.getToolBar(), Priority.ALWAYS);
 
             root.setTop(topContainer);
             root.setCenter(tabManager.getTabPane());
-
 
             // Загружаем тему после создания сцены
             Scene scene = new Scene(root, 925, 600);
@@ -46,8 +47,6 @@ public class EditorMain extends Application implements TextAppender {
             Theme savedTheme = fileManager.loadPreferences();
             String themeCss = getClass().getResource(savedTheme.getCssPath()).toExternalForm();
             scene.getStylesheets().add(themeCss);
-
-            primaryStage.setScene(scene);
 
             primaryStage.setScene(scene);
             primaryStage.setTitle("Jumpie TextNote");
@@ -62,6 +61,11 @@ public class EditorMain extends Application implements TextAppender {
             e.printStackTrace();
             showError(primaryStage, "Application Error", "Failed to start application: " + e.getMessage());
         }
+    }
+
+    // НОВОЕ: геттер для Stage
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     public static void showError(Stage owner, String title, String message) {

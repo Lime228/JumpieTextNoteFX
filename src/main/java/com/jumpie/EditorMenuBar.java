@@ -21,6 +21,7 @@ public class EditorMenuBar {
     private final ToggleButton italicBtn;
     private final ToggleButton underlineBtn;
     private final ToggleButton strikethroughBtn;
+    private FindReplaceDialog findReplaceDialog; // НОВОЕ
 
     public EditorMenuBar(EditorMain editorMain, FileManager fileManager, TabManager tabManager,
                          VoiceRecognitionService voiceService) {
@@ -29,8 +30,9 @@ public class EditorMenuBar {
 
         // Создание меню File
         Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Закрыть вкладку");
+
         // Создание меню Edit
-        Menu editMenu = createMenu("Редактировать", "Отменить", "Повторить", "Вырезать", "Копировать", "Вставить");
+        Menu editMenu = createMenu("Редактировать", "Отменить", "Повторить", "Вырезать", "Копировать", "Вставить", "Найти и Заменить"); // ИЗМЕНЕНО
 
         Menu themeMenu = createThemeMenu();
 
@@ -40,7 +42,9 @@ public class EditorMenuBar {
         toolBar = new HBox(5);
         toolBar.getStyleClass().add("tool-bar");
         toolBar.setFillHeight(true);
+
         voiceService.setOnStateChangeListener(() -> updateVoiceButtonState(voiceService.isListening()));
+
         voiceButton = createRecordButton();
         voiceButton.setOnAction(e -> {
             voiceService.toggleRecognition(editorMain);
@@ -106,7 +110,6 @@ public class EditorMenuBar {
         return combo;
     }
 
-
     private ToggleButton createStyleToggleButton(FontAwesomeIcon icon, String styleClass) {
         ToggleButton button = new ToggleButton();
         button.setGraphic(new FontAwesomeIconView(icon));
@@ -132,17 +135,14 @@ public class EditorMenuBar {
             });
             themeMenu.getItems().add(themeItem);
         }
-
         return themeMenu;
     }
-
 
     private Label createLabel(String text) {
         Label label = new Label(text);
         label.setStyle(".label");
         return label;
     }
-
 
     private void setupEventHandlers(EditorMain editorMain, FileManager fileManager,
                                     TabManager tabManager, VoiceRecognitionService voiceService) {
@@ -159,6 +159,9 @@ public class EditorMenuBar {
         menuBar.getMenus().get(1).getItems().get(2).setOnAction(e -> tabManager.cut());
         menuBar.getMenus().get(1).getItems().get(3).setOnAction(e -> tabManager.copy());
         menuBar.getMenus().get(1).getItems().get(4).setOnAction(e -> tabManager.paste());
+
+        // НОВОЕ: Find & Replace
+        menuBar.getMenus().get(1).getItems().get(5).setOnAction(e -> showFindReplace(editorMain, tabManager));
 
         voiceButton.setOnAction(e -> voiceService.toggleRecognition(editorMain));
 
@@ -199,10 +202,19 @@ public class EditorMenuBar {
         });
     }
 
+    // НОВОЕ: показать диалог Find & Replace
+    private void showFindReplace(EditorMain editorMain, TabManager tabManager) {
+        if (findReplaceDialog == null) {
+            findReplaceDialog = new FindReplaceDialog(editorMain.getPrimaryStage(), tabManager);
+        }
+        findReplaceDialog.show();
+    }
+
     private void updateStyleButtons(TabManager tabManager) {
         StyleClassedTextArea textArea = tabManager.getCurrentTextArea();
         if (textArea != null && textArea.getSelection().getLength() > 0) {
             int pos = textArea.getSelection().getStart();
+            @SuppressWarnings("unchecked")
             Set<String> styles = (Set<String>) textArea.getStyleOfChar(pos);
 
             boolean isBold = styles.stream().anyMatch(s -> s.contains("bold"));
@@ -229,7 +241,6 @@ public class EditorMenuBar {
     public HBox getToolBar() {
         return toolBar;
     }
-
 
     private Button createRecordButton() {
         Button button = createToolButton();
