@@ -30,7 +30,7 @@ public class EditorMenuBar {
         // Создание меню File
         Menu fileMenu = createMenu("Файл", "Новая вкладка", "Открыть", "Сохранить", "Сохранить как", "Закрыть вкладку");
         // Создание меню Edit
-        Menu editMenu = createMenu("Редактировать", "Вырезать", "Копировать", "Вставить");
+        Menu editMenu = createMenu("Редактировать", "Отменить", "Повторить", "Вырезать", "Копировать", "Вставить");
 
         Menu themeMenu = createThemeMenu();
 
@@ -154,9 +154,11 @@ public class EditorMenuBar {
         menuBar.getMenus().get(0).getItems().get(4).setOnAction(e -> tabManager.closeCurrentTab());
 
         // Обработчики для меню Edit
-        menuBar.getMenus().get(1).getItems().get(0).setOnAction(e -> tabManager.cut());
-        menuBar.getMenus().get(1).getItems().get(1).setOnAction(e -> tabManager.copy());
-        menuBar.getMenus().get(1).getItems().get(2).setOnAction(e -> tabManager.paste());
+        menuBar.getMenus().get(1).getItems().get(0).setOnAction(e -> tabManager.undo());
+        menuBar.getMenus().get(1).getItems().get(1).setOnAction(e -> tabManager.redo());
+        menuBar.getMenus().get(1).getItems().get(2).setOnAction(e -> tabManager.cut());
+        menuBar.getMenus().get(1).getItems().get(3).setOnAction(e -> tabManager.copy());
+        menuBar.getMenus().get(1).getItems().get(4).setOnAction(e -> tabManager.paste());
 
         voiceButton.setOnAction(e -> voiceService.toggleRecognition(editorMain));
 

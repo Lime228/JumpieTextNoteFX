@@ -25,6 +25,12 @@ public class TabManager {
             } else if (new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN).match(event)) {
                 closeCurrentTab();
                 event.consume();
+            } else if (new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN).match(event)) {
+                undo();
+                event.consume();
+            } else if (new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN).match(event)) {
+                redo();
+                event.consume();
             }
         });
     }
@@ -74,6 +80,20 @@ public class TabManager {
         Tab currentTab = getCurrentTab();
         if (currentTab != null) {
             currentTab.setText(title);
+        }
+    }
+
+    public void undo() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null && textArea.isUndoAvailable()) {
+            textArea.undo();
+        }
+    }
+
+    public void redo() {
+        StyleClassedTextArea textArea = getCurrentTextArea();
+        if (textArea != null && textArea.isRedoAvailable()) {
+            textArea.redo();
         }
     }
 
